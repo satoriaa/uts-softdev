@@ -1,0 +1,51 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ============================
+# Root / Shared
+# ============================
+node_modules/
+.env
+.env.local
+.env.*.local
+.env.backup
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tsbuildinfo
+
+# ============================
+# Frontend (Next.js)
+# ============================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.vercel
+frontend/next-env.d.ts
+
+# ============================
+# Backend
+# ============================
+backend/node_modules/
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/uploads/
+backend/tmp/
+backend/dist/
+backend/build/
+
+# ============================
+# Misc
+# ============================
+/coverage
+*.pem
+.vercel
+
