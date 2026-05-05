@@ -27,15 +27,26 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', { email, password }); // 🔥 kirim email
       setAuth(res.data.data, res.data.token); // simpan auth
-      router.push('/dashboard_admin'); // revisi ini harunsya ke bagian user dashboard, bukan admin
+      
+      // 🔥 Revisi: Diarahkan ke dashboard user sesuai catatan
+      router.push('/dashboard_user'); 
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login gagal'); // error handling
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-[#FAFAFA] font-sans">
+    // Tambahkan class 'relative' pada wrapper utama agar tombol absolute tidak berantakan
+    <div className="min-h-screen flex bg-[#FAFAFA] font-sans relative">
       
+      {/* ================= TOMBOL LOGIN ADMIN (POJOK KIRI ATAS) ================= */}
+      <Link 
+        href="/login/admin"
+        className="absolute top-6 left-6 z-50 bg-white text-sm font-semibold text-gray-600 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-[#E85C41] hover:shadow-md transition-all duration-300"
+      >
+        Login Admin &rarr;
+      </Link>
+
       {/* ================= LEFT SIDE (FORM) ================= */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-[420px]">
@@ -88,7 +99,7 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full bg-[#E85C41] text-white font-semibold p-3.5 rounded-lg hover:bg-[#D44A30] transition-colors">
-              masuk
+              Masuk
             </button>
 
             {/* REGISTER */}

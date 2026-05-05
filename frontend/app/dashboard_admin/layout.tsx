@@ -38,12 +38,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!token && !localStorage.getItem('token')) return null;
 
   const menuItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Kelola showcase', href: '/dashboard/karya', icon: ImageIcon },
-    { name: 'Kelola Inventaris', href: '/dashboard/inventaris', icon: Box },
-    { name: 'Kelola Event', href: '/dashboard/event', icon: Calendar },
-    { name: 'Kelola Profil', href: '/dashboard/profil', icon: User },
-    { name: 'Validasi Pinjaman', href: '/dashboard/validasi', icon: CheckSquare },
+    { name: 'Dashboard', href: '/dashboard_admin', icon: LayoutDashboard },
+    { name: 'Kelola showcase', href: '/dashboard_admin/karya', icon: ImageIcon },
+    { name: 'Kelola Inventaris', href: '/dashboard_admin/tenant', icon: Box },
+    { name: 'Kelola Event', href: '/dashboard_admin/event', icon: Calendar },
+    { name: 'Kelola Profil', href: '/dashboard_admin/users', icon: User },
+    { name: 'Validasi Pinjaman', href: '/dashboard_admin/pinjaman', icon: CheckSquare },
   ];
 
   return (

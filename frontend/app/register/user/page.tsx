@@ -64,7 +64,8 @@ export default function RegisterPage() {
                 name="nama"
                 type="text"
                 placeholder="Nama lengkap Anda"
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.nama}
                 onChange={handleChange}
                 required
@@ -77,7 +78,8 @@ export default function RegisterPage() {
                 name="nim"
                 type="text"
                 placeholder="21120001"
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.nim}
                 onChange={handleChange}
                 required
@@ -90,7 +92,8 @@ export default function RegisterPage() {
                 name="jurusan" 
                 value={form.jurusan} 
                 onChange={handleChange} 
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] bg-white"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] bg-white"
                 required
               >
                 <option value="" disabled>Pilih Program Studi</option>
@@ -107,7 +110,8 @@ export default function RegisterPage() {
                 name="email"
                 type="email"
                 placeholder="nama@student.university.ac.id"
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.email}
                 onChange={handleChange}
                 required
@@ -120,7 +124,8 @@ export default function RegisterPage() {
                 name="password"
                 type="password"
                 placeholder="Minimal 8 karakter"
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.password}
                 onChange={handleChange}
                 required
@@ -133,7 +138,8 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 type="password"
                 placeholder="Ulangi password"
-                className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
+                // Menambahkan text-black
+                className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.confirmPassword}
                 onChange={handleChange}
                 required
