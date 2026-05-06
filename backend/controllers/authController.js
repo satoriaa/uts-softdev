@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt'); // Tetap di-import jika dibutuhkan di tempat lain
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -47,5 +48,52 @@ exports.getMe = async (req, res) => {
     res.json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// FUNGSI UNTUK MERESET PASSWORD
+exports.resetPassword = async (req, res) => {
+  try {
+    // 1. Tangkap data yang dikirim dari Frontend (lupa.tsx)
+    const { email, password, password_confirmation } = req.body;
+
+    // 2. Validasi Dasar
+    if (!email || !password || !password_confirmation) {
+      return res.status(400).json({ 
+        message: 'Email, password baru, dan konfirmasi password harus diisi.' 
+      });
+    }
+
+    if (password !== password_confirmation) {
+      return res.status(400).json({ 
+        message: 'Password baru dan konfirmasi password tidak cocok.' 
+      });
+    }
+
+    // 3. Cari user di database MongoDB berdasarkan Email
+    const user = await User.findOne({ email: email });
+
+    // Jika email tidak ditemukan di database
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'Gagal mengubah password. Pastikan email benar dan terdaftar.' 
+      });
+    }
+
+    // 4. Timpa password lama dengan password baru (tanpa hashing manual)
+    // File Model (User.js) Anda akan otomatis meng-enkripsinya saat "user.save()" dipanggil.
+    user.password = password; 
+    await user.save();
+
+    // 5. Kirim respons sukses ke Frontend
+    return res.status(200).json({ 
+      message: 'Password berhasil diubah! Silakan login.' 
+    });
+
+  } catch (error) {
+    console.error('Error di resetPassword:', error);
+    return res.status(500).json({ 
+      message: 'Terjadi kesalahan pada server backend.' 
+    });
   }
 };

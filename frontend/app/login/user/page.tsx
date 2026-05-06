@@ -91,8 +91,13 @@ export default function LoginPage() {
             </div>
 
             {/* LUPA PASSWORD */}
-            <div className="text-right text-xs text-[#E85C41] mb-8 cursor-pointer hover:underline">
-              Lupa password?
+            <div className="text-right mb-8">
+              <Link 
+                href="/login/user/lupa" 
+                className="text-xs text-[#E85C41] hover:underline cursor-pointer font-medium"
+              >
+                Lupa password?
+              </Link>
             </div>
 
             {/* BUTTON LOGIN */}
