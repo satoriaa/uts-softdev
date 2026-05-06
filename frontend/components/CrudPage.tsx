@@ -55,54 +55,65 @@ export default function CrudPage({ title, endpoint, fields }: CrudPageProps) {
 
   const hasFileField = fields.some((f) => f.type === 'file');
 
+  // Cloudinary upload (unsigned)
+
+  const uploadKeCloudinary = async (file: File) => {
+    const formData = new FormData();
+    const cloudinaryCloudName = 'dfyaergf4';
+
+    // Required params untuk unsigned upload
+    formData.append('file', file);
+formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'my_preset');
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/auto/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(txt || 'Gagal upload ke Cloudinary');
+    }
+
+    const json = await res.json();
+    return json?.secure_url as string;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      let payload: any;
-      let headers: Record<string, string> = {};
+      // detect file field name (contoh: gambar)
+      const fileField = fields.find((f) => f.type === 'file');
 
-      if (hasFileField) {
-        const fd = new FormData();
-
-        // IMPORTANT: FormData must contain only string/Blob values.
-        // Some values (e.g. {} from file-less edits) can cause Mongoose cast errors like:
-        // "Cast to string failed for value {} at path gambar".
-        for (const key in form) {
-          const v = form[key];
-          if (v === undefined || v === null) continue;
-
-          if (typeof v === 'object') {
-            // Skip objects; file fields are handled separately via `files`.
-            continue;
-          }
-
-          fd.append(key, String(v));
-        }
-
-        for (const key in files) {
-          if (files[key]) {
-            fd.append(key, files[key] as File);
-          }
-        }
-
-        payload = fd;
-      } else {
-        payload = form;
-        headers['Content-Type'] = 'application/json';
+      // 1) Upload ke Cloudinary dulu kalau ada file field dan user mengirim file baru
+      let imageUrl: string | null = null;
+      if (fileField?.name && files[fileField.name] && files[fileField.name] instanceof File) {
+        const selected = files[fileField.name] as File;
+        imageUrl = await uploadKeCloudinary(selected);
       }
+
+      // 2) Baru kirim data ke backend
+      const dataProker = {
+        ...form,
+        ...(imageUrl ? { [fileField?.name as string]: imageUrl } : {}),
+      };
 
       if (editingId) {
-        await api.put(`${endpoint}/${editingId}`, payload, { headers });
+        await api.put(`${endpoint}/${editingId}`, dataProker);
       } else {
-        await api.post(endpoint, payload, { headers });
+        await api.post(endpoint, dataProker);
       }
 
+      // Jika form selesai, reset state
       handleCancel();
       fetchItems();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error');
+      alert(err.response?.data?.message || err.message || 'Error');
     } finally {
       setLoading(false);
     }

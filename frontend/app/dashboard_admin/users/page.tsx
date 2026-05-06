@@ -30,7 +30,7 @@ export default function UsersPage() {
       const myWidget = cloudinary.createUploadWidget(
         {
           cloudName: 'dfyaergf4',
-          uploadPreset: 'my_preset',
+uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'my_preset',
         },
         (error: any, result: any) => {
           if (error) {
