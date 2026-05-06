@@ -10,6 +10,7 @@ export default function ProkerPage() {
         { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', required: true },
         { name: 'tanggal', label: 'Tanggal', type: 'date', required: true },
         { name: 'tempat', label: 'Tempat', required: true },
+        { name: 'gambar', label: 'Poster Proker (upload)', type: 'file', required: true },
       ]}
     />
   );

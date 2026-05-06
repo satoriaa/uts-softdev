@@ -8,6 +8,7 @@ export default function TenantPage() {
       fields={[
         { name: 'nama', label: 'Nama Tenant', required: true },
         { name: 'listJualan', label: 'List Jualan (pisahkan koma)', required: true },
+        { name: 'gambar', label: 'Foto Tenant (upload)', type: 'file', required: true },
       ]}
     />
   );

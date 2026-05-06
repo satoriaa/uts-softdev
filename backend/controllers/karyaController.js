@@ -22,7 +22,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
-    if (req.file) payload.gambar = req.file.path;
+    if (req.file) payload.gambar = req.file.secure_url || req.file.path;
     const data = await Karya.create(payload);
     res.status(201).json({ success: true, data });
   } catch (error) {

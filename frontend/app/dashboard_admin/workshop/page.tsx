@@ -10,6 +10,7 @@ export default function WorkshopPage() {
         { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', required: true },
         { name: 'tanggal', label: 'Tanggal Workshop', type: 'date', required: true },
         { name: 'tempat', label: 'Tempat', required: true },
+        { name: 'gambar', label: 'Poster Workshop (upload)', type: 'file', required: true },
       ]}
     />
   );

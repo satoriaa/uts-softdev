@@ -65,16 +65,28 @@ export default function CrudPage({ title, endpoint, fields }: CrudPageProps) {
 
       if (hasFileField) {
         const fd = new FormData();
+
+        // IMPORTANT: FormData must contain only string/Blob values.
+        // Some values (e.g. {} from file-less edits) can cause Mongoose cast errors like:
+        // "Cast to string failed for value {} at path gambar".
         for (const key in form) {
-          if (form[key] !== undefined && form[key] !== null) {
-            fd.append(key, form[key]);
+          const v = form[key];
+          if (v === undefined || v === null) continue;
+
+          if (typeof v === 'object') {
+            // Skip objects; file fields are handled separately via `files`.
+            continue;
           }
+
+          fd.append(key, String(v));
         }
+
         for (const key in files) {
           if (files[key]) {
             fd.append(key, files[key] as File);
           }
         }
+
         payload = fd;
       } else {
         payload = form;
@@ -86,6 +98,7 @@ export default function CrudPage({ title, endpoint, fields }: CrudPageProps) {
       } else {
         await api.post(endpoint, payload, { headers });
       }
+
       handleCancel();
       fetchItems();
     } catch (err: any) {

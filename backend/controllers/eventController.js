@@ -22,7 +22,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
-    if (req.file) payload.gambar = req.file.path;
+    if (req.file) payload.gambar = req.file.secure_url || req.file.path;
     const data = await Event.create(payload);
     res.status(201).json({ success: true, data });
   } catch (error) {
@@ -33,7 +33,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const payload = { ...req.body };
-    if (req.file) payload.gambar = req.file.path;
+    if (req.file) payload.gambar = req.file.secure_url || req.file.path;
     const data = await Event.findByIdAndUpdate(req.params.id, payload, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data });

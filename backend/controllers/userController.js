@@ -21,12 +21,16 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const user = await User.create(req.body);
+    const payload = { ...req.body };
+    if (req.file) payload.gambar = req.file.path;
+
+    const user = await User.create(payload);
     res.status(201).json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 exports.updateUser = async (req, res) => {
   try {
@@ -41,6 +45,8 @@ exports.updateUser = async (req, res) => {
     if (password) user.password = password;
     if (role) user.role = role;
 
+    if (req.file) user.gambar = req.file.path;
+
     await user.save();
     const updated = await User.findById(user._id).select('-password');
     res.json({ success: true, data: updated });
@@ -48,6 +54,7 @@ exports.updateUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 exports.deleteUser = async (req, res) => {
   try {

@@ -5,7 +5,10 @@
     "dev": "concurrently \"npm run frontend\" \"npm run backend\""
   },
   "dependencies": {
-    "cloudinary": "^2.10.0"
+    "cloudinary": "^2.10.0",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

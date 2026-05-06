@@ -39,10 +39,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard_admin', icon: LayoutDashboard },
-    { name: 'Kelola showcase', href: '/dashboard_admin/karya', icon: ImageIcon },
-    { name: 'Kelola Inventaris', href: '/dashboard_admin/tenant', icon: Box },
-    { name: 'Kelola Event', href: '/dashboard_admin/event', icon: Calendar },
-    { name: 'Kelola Profil', href: '/dashboard_admin/users', icon: User },
+    { name: 'Ruangan', href: '/dashboard_admin/ruang', icon: Box },
+    { name: 'Tenant', href: '/dashboard_admin/tenant', icon: Box },
+    { name: 'Lomba', href: '/dashboard_admin/lomba', icon: LayoutDashboard },
+    { name: 'Karya', href: '/dashboard_admin/karya', icon: ImageIcon },
+    { name: 'Proker', href: '/dashboard_admin/proker', icon: Calendar },
+    { name: 'Workshop', href: '/dashboard_admin/workshop', icon: Calendar },
+    { name: 'Event', href: '/dashboard_admin/event', icon: Calendar },
+    { name: 'Majalah', href: '/dashboard_admin/majalah', icon: ImageIcon },
+    { name: 'User', href: '/dashboard_admin/users', icon: User },
     { name: 'Validasi Pinjaman', href: '/dashboard_admin/pinjaman', icon: CheckSquare },
   ];
 

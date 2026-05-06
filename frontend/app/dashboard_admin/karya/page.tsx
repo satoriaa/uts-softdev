@@ -10,6 +10,7 @@ export default function KaryaPage() {
         { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', required: true },
         { name: 'username', label: 'Username Pembuat', required: true },
         { name: 'nim', label: 'NIM Pembuat', required: true },
+        { name: 'gambar', label: 'Poster/Foto Karya (upload)', type: 'file', required: true },
       ]}
     />
   );

@@ -10,6 +10,7 @@ export default function LombaPage() {
         { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', required: true },
         { name: 'tanggal', label: 'Tanggal Lomba', type: 'date', required: true },
         { name: 'tempat', label: 'Tempat', required: true },
+        { name: 'gambar', label: 'Poster Lomba (upload)', type: 'file', required: true },
       ]}
     />
   );

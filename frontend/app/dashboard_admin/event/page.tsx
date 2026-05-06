@@ -49,38 +49,39 @@ export default function EventPage() {
             endpoint="/event"
             fields={[
               { 
-                name: 'judul', 
-                label: 'Nama Event', 
+                name: 'judul',
+                label: 'Nama Event',
                 required: true 
               },
               { 
-                name: 'deskripsi', 
-                label: 'Konsep & Deskripsi', 
-                type: 'textarea', 
+                name: 'deskripsi',
+                label: 'Konsep & Deskripsi',
+                type: 'textarea',
                 required: true 
               },
               { 
-                name: 'ketentuan', 
-                label: 'Ketentuan Peserta', 
-                type: 'textarea', 
+                name: 'ketentuan',
+                label: 'Ketentuan Peserta',
+                type: 'textarea',
                 required: true 
               },
               { 
-                name: 'lokasi', 
-                label: 'Venue / Lokasi', 
+                name: 'lokasi',
+                label: 'Venue / Lokasi',
                 required: true 
               },
               { 
-                name: 'tanggal', 
-                label: 'Waktu Pelaksanaan', 
-                type: 'date', 
+                name: 'tanggal',
+                label: 'Waktu Pelaksanaan',
+                type: 'date',
                 required: true 
               },
               { 
-                name: 'pembicara', 
-                label: 'ID Penanggung Jawab', 
+                name: 'pembicara',
+                label: 'ID Penanggung Jawab',
                 required: true 
               },
+              { name: 'gambar', label: 'Poster Event (upload)', type: 'file', required: true },
             ]}
           />
         </div>

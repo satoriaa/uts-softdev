@@ -10,6 +10,7 @@ export default function MajalahPage() {
         { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', required: true },
         { name: 'tanggal', label: 'Tanggal', type: 'date', required: true },
         { name: 'harga', label: 'Harga', type: 'number', required: true },
+        { name: 'gambar', label: 'Cover Majalah (upload)', type: 'file', required: true },
       ]}
     />
   );
