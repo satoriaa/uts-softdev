@@ -36,7 +36,32 @@ export default function DashboardUserLayout({
     router.push('/login');
   };
 
-  if (!token && !localStorage.getItem('token')) return null;
+  if (!token) {
+    // localStorage only exists in browser; guard for SSR
+    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
+      // token exists in localStorage but not in store yet
+    } else {
+      return null;
+    }
+  }
+
+  // Redirect legacy/invalid routes (avoids blank/404 when user clicks old links)
+  // NOTE: jangan redirect ke `/dashboard_user` untuk route yang valid seperti `/dashboard_user/showcase`.
+  if (
+    pathname === '/dashboard_user/users' ||
+    pathname === '/user-home' ||
+    pathname === '/user-homedan'
+  ) {
+    router.replace('/dashboard_user');
+  }
+
+
+
+
+
+
+
+
 
   const menuItems = [
     { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },

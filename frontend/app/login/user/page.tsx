@@ -28,8 +28,9 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', { email, password }); // 🔥 kirim email
       setAuth(res.data.data, res.data.token); // simpan auth
       
-      // 🔥 Revisi: Diarahkan ke dashboard user sesuai catatan
-      router.push('/dashboard_user'); 
+      // 🔥 Revisi: Habis login diarahkan ke user-home (bukan langsung dashboard_user)
+      router.push('/user-home'); 
+
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login gagal'); // error handling
     }
