@@ -29,7 +29,7 @@ export default function LoginPage() {
       setAuth(res.data.data, res.data.token); // simpan auth
       
       // 🔥 Revisi: Habis login diarahkan ke user-home (bukan langsung dashboard_user)
-      router.push('/user-home'); 
+      router.push('/dashboard_user'); 
 
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login gagal'); // error handling

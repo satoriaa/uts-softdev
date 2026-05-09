@@ -49,19 +49,11 @@ export default function DashboardUserLayout({
   // NOTE: jangan redirect ke `/dashboard_user` untuk route yang valid seperti `/dashboard_user/showcase`.
   if (
     pathname === '/dashboard_user/users' ||
-    pathname === '/user-home' ||
-    pathname === '/user-homedan'
+    pathname === '/dashboard_admin' ||
+    pathname === '/dashboard_admin/users'
   ) {
     router.replace('/dashboard_user');
   }
-
-
-
-
-
-
-
-
 
   const menuItems = [
     { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
