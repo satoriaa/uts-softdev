@@ -102,3 +102,83 @@ Aplikasi akan berjalan di **http://localhost:3000**
 - Pastikan `.env` di backend sudah benar (terutama `CLOUDINARY_*` jika ingin upload gambar).
 - Untuk fitur admin-only, gunakan header `Authorization: Bearer <token>`.
 
+---
+
+## 📌 Project status (update: 2026-05-09)
+
+Recent work in this repository (what changed and how to use it):
+
+- Added a reusable admin CRUD component: `frontend/app/components/CrudPage.tsx`.
+    - Features: list, create, edit, delete via the existing axios client (`frontend/lib/axios.ts`).
+    - Supports field types: text, number, textarea, date, password, select, file (with preview).
+    - Automatically sends FormData when file fields are present (multipart/form-data).
+    - Includes small UI enhancements: search, client-side pagination, image thumbnail column, status badges, and a two-column form layout that follows the admin dashboard styling.
+    - Integrates with the Cloudinary upload widget via a hidden input (`id="cloudinary-gambar-url"`) used by the widget in `frontend/app/dashboard_admin/users/page.tsx`.
+
+- Admin pages updated to use the new component and to be client components (moved/added `"use client"` at the top):
+    - `frontend/app/dashboard_admin/event/page.tsx`
+    - `frontend/app/dashboard_admin/karya/page.tsx`
+    - `frontend/app/dashboard_admin/lomba/page.tsx`
+    - `frontend/app/dashboard_admin/majalah/page.tsx`
+    - `frontend/app/dashboard_admin/pinjaman/page.tsx`
+    - `frontend/app/dashboard_admin/proker/page.tsx`
+    - `frontend/app/dashboard_admin/ruang/page.tsx`
+    - `frontend/app/dashboard_admin/tenant/page.tsx`
+    - `frontend/app/dashboard_admin/workshop/page.tsx`
+    - `frontend/app/dashboard_admin/users/page.tsx`
+
+- Why this matters: Next.js requires components that use hooks (useEffect/useState) to be client components; pages that import `CrudPage` were converted to client pages to avoid runtime build errors.
+
+## 🔧 How to use `CrudPage`
+
+Place the `CrudPage` component in a page and pass these props:
+
+- `endpoint` (string): API path relative to the axios base (e.g. `/event`, `/karya`).
+- `title` (string, optional): page/section title.
+- `fields` (array): field definitions with shape { name, label, type?, required?, options? }.
+
+Example (see admin pages under `frontend/app/dashboard_admin/*`):
+
+```
+<CrudPage
+    title="Daftar Agenda Kreatif"
+    endpoint="/event"
+    fields={[
+        { name: 'judul', label: 'Nama Event', required: true },
+        { name: 'deskripsi', label: 'Konsep & Deskripsi', type: 'textarea', required: true },
+        { name: 'tanggal', label: 'Waktu Pelaksanaan', type: 'date', required: true },
+        { name: 'gambar', label: 'Poster Event (upload)', type: 'file', required: true },
+    ]}
+/>
+```
+
+Notes on fields and behavior:
+- File fields accept a File object or (when using Cloudinary widget) you can set the hidden input `cloudinary-gambar-url` — the component will include file uploads as multipart/form-data.
+- The component expects the backend list endpoints to return an object with `data` array (e.g. `{ data: [...] }`) — this is how existing frontend pages consume API results.
+
+## ✅ Pages that already use `CrudPage`
+- All admin modules (Event, Karya, Lomba, Majalah, Pinjaman, Proker, Ruang, Tenant, Workshop, Users) render `CrudPage` with module-specific fields. See `frontend/app/dashboard_admin/*/page.tsx`.
+
+## 🧪 Build & test notes
+
+- Before running the frontend, install dependencies and start both servers:
+
+```powershell
+cd backend; npm install; npm run dev
+cd ../frontend; npm install; npm run dev
+```
+
+- If you see an error about `'use client' directive must be placed before other expressions`, make sure any page importing client components places `"use client"` as the first line of the file. The admin pages have been updated to include this where required.
+
+- Recommended quick checks:
+    - Run `npm run build` in `frontend` to typecheck and surface any TypeScript/Next build errors.
+    - Run `npm run dev` for local development to visually verify the admin pages and CRUD flows.
+
+## 📍 Next steps (optional enhancements)
+- Add server-side pagination and filtering support in the API to avoid loading large lists on the client.
+- Improve per-field validation and error display in `CrudPage`.
+- Add automated tests for the CRUD flows (small integration tests against a test backend or mocked axios).
+- Add role-based UI elements (hide admin-only pages/buttons when user role !== admin).
+
+If you'd like, I can run the frontend build now and fix any issues the build reports (type errors or placement of "use client").
+

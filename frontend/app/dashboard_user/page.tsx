@@ -118,7 +118,7 @@ export default function UserHomePage() {
   const [activeMenu, setActiveMenu] = useState('Home')
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600)
+    const timer = setTimeout(() => setLoading(false), 1800)
     return () => clearTimeout(timer)
   }, [])
 
@@ -181,56 +181,8 @@ export default function UserHomePage() {
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className="bg-noise fixed pointer-events-none" />
 
-      {/* Desktop Sidebar */}
-      <aside className="fixed left-6 top-6 bottom-6 w-72 bg-white/60 backdrop-blur-2xl border border-white/40 rounded-[40px] p-8 hidden lg:flex flex-col justify-between z-40 shadow-[0_8px_40px_rgb(0,0,0,0.03)]">
-        <div>
-          <h2 className="text-2xl font-black leading-tight tracking-tight mb-2">
-            Central<br />Creative<br />Hub<span className="text-[#F05A37]">.</span>
-          </h2>
-          <p className="text-xs text-gray-500 font-medium tracking-wide">FSRD UNTAR</p>
-
-          <nav className="mt-12 space-y-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = activeMenu === item.name
-              return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setActiveMenu(item.name)}
-                  className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ease-out-expo group ${
-                    isActive
-                      ? 'bg-[#F05A37] text-white shadow-lg shadow-[#F05A37]/20 transform scale-[1.02]'
-                      : 'hover:bg-white text-gray-600 hover:text-[#F05A37] hover:shadow-sm'
-                  }`}
-                >
-                  <Icon
-                    size={20}
-                    strokeWidth={isActive ? 2.5 : 2}
-                    className={`transition-transform duration-300 ${
-                      isActive ? '' : 'group-hover:scale-110'
-                    }`}
-                  />
-                  <span className="font-semibold text-sm tracking-wide">{item.name}</span>
-                </a>
-              )
-            })}
-          </nav>
-        </div>
-
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 p-5 rounded-3xl border border-orange-100">
-          <div className="w-10 h-10 bg-[#F05A37] rounded-full flex items-center justify-center mb-3">
-            <User size={18} className="text-white" />
-          </div>
-          <p className="text-sm font-bold">Andi Prasetyo</p>
-          <p className="text-xs text-gray-500 truncate">andi.prasetyo@student.untar.ac.id</p>
-        </div>
-      </aside>
-
       {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-xl border border-white/40 rounded-[32px] p-2 flex justify-between items-center z-50 lg:hidden shadow-xl">
-
-
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = activeMenu === item.name
@@ -255,7 +207,8 @@ export default function UserHomePage() {
         })}
       </nav>
 
-      <main className="w-full lg:pl-[320px] p-4 lg:p-8 pb-32 lg:pb-8">
+      {/* Main Content (Padding adjusted: removed lg:pl-[320px]) */}
+      <main className="w-full p-4 lg:p-8 pb-32 lg:pb-8">
         {/* HERO SECTION */}
         <Reveal direction="scale">
           <section className="relative h-[85vh] w-full rounded-[40px] overflow-hidden group">
@@ -321,7 +274,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* KARYA TERBARU + FEATURES + EVENT (ringkas tapi tetap sesuai style) */}
+        {/* KARYA TERBARU */}
         <section className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -363,7 +316,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* PROKER SECTION (height seperti Karya) */}
+        {/* PROKER SECTION */}
         <section id="proker" className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -415,6 +368,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* FEATURES */}
         <section className="py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Reveal delay={100}>
@@ -435,7 +389,7 @@ export default function UserHomePage() {
 
             <Reveal delay={300}>
               <div className="bg-white rounded-[40px] p-10 h-full shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden border border-gray-100">
-              <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl group-hover:bg-blue-100 transition-colors" />
+                <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl group-hover:bg-blue-100 transition-colors" />
                 <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
                   <Package size={32} strokeWidth={1.5} />
                 </div>
@@ -467,6 +421,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* CTA SECTION */}
         <Reveal direction="scale" delay={200}>
           <section className="mt-12 bg-[#F05A37] rounded-[48px] p-12 md:p-24 text-center text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-50" />
@@ -501,50 +456,28 @@ export default function UserHomePage() {
             <div>
               <h4 className="text-lg font-bold text-gray-900 mb-6 tracking-wide">Navigasi</h4>
               <ul className="space-y-4 font-medium text-sm">
-                <li>
-                  <a href="/user-home" className="hover:text-[#F05A37] transition-colors">Home</a>
-                </li>
-                <li>
-                  <a href="/dashboard_user/showcase" className="hover:text-[#F05A37] transition-colors">Showcase</a>
-                </li>
-                <li>
-                  <a href="/dashboard_user/event" className="hover:text-[#F05A37] transition-colors">Events</a>
-                </li>
-                <li>
-                  <a href="/dashboard_user/inventaris" className="hover:text-[#F05A37] transition-colors">Inventaris</a>
-                </li>
+                <li><a href="/user-home" className="hover:text-[#F05A37] transition-colors">Home</a></li>
+                <li><a href="/dashboard_user/showcase" className="hover:text-[#F05A37] transition-colors">Showcase</a></li>
+                <li><a href="/dashboard_user/event" className="hover:text-[#F05A37] transition-colors">Events</a></li>
+                <li><a href="/dashboard_user/inventaris" className="hover:text-[#F05A37] transition-colors">Inventaris</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-lg font-bold text-gray-900 mb-6 tracking-wide">Akademik</h4>
               <ul className="space-y-4 font-medium text-sm">
-                <li>
-                  <a href="#" className="hover:text-[#F05A37] transition-colors">Desain Komunikasi Visual</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#F05A37] transition-colors">Desain Grafis</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#F05A37] transition-colors">Fotografi</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-[#F05A37] transition-colors">Ilustrasi</a>
-                </li>
+                <li><a href="#" className="hover:text-[#F05A37] transition-colors">Desain Komunikasi Visual</a></li>
+                <li><a href="#" className="hover:text-[#F05A37] transition-colors">Desain Grafis</a></li>
+                <li><a href="#" className="hover:text-[#F05A37] transition-colors">Fotografi</a></li>
+                <li><a href="#" className="hover:text-[#F05A37] transition-colors">Ilustrasi</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-lg font-bold text-gray-900 mb-6 tracking-wide">Kontak</h4>
               <ul className="space-y-4 font-medium text-sm">
-                <li className="flex items-center gap-2">
-                  <Archive size={16} /> fsrd@university.ac.id
-                </li>
+                <li className="flex items-center gap-2"><Archive size={16} /> fsrd@university.ac.id</li>
                 <li className="flex gap-4 mt-6">
-                  <a href="#" className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-[#F05A37] hover:text-white transition-all text-gray-900">
-                    <Camera size={18} />
-                  </a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-[#F05A37] hover:text-white transition-all text-gray-900">
-                    <Palette size={18} />
-                  </a>
+                  <a href="#" className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-[#F05A37] hover:text-white transition-all text-gray-900"><Camera size={18} /></a>
+                  <a href="#" className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-[#F05A37] hover:text-white transition-all text-gray-900"><Palette size={18} /></a>
                 </li>
               </ul>
             </div>
@@ -562,7 +495,3 @@ export default function UserHomePage() {
     </div>
   )
 }
-
-
-
-

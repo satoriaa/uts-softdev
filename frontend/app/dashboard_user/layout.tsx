@@ -1,197 +1,237 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { useAuthStore } from '@/store/authStore';
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   User,
   LayoutDashboard,
   ImageIcon,
   Box,
   Calendar,
-
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
   LogOut,
-} from 'lucide-react';
+  Bell,
+} from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+
+const MENU_ITEMS = [
+  { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
+  { name: 'Showcase', href: '/dashboard_user/showcase', icon: ImageIcon },
+  { name: 'Inventaris', href: '/dashboard_user/inventaris', icon: Box },
+  { name: 'Event', href: '/dashboard_user/event', icon: Calendar },
+  { name: 'Profil', href: '/dashboard_user/profil', icon: User },
+] as const
+
+const INVALID_ROUTES = [
+  '/dashboard_user/users',
+  '/dashboard_admin',
+  '/dashboard_admin/users',
+]
+
+type NavItemProps = {
+  item: (typeof MENU_ITEMS)[number]
+  isActive: boolean
+  isExpanded: boolean
+}
+
+function NavItem({ item, isActive, isExpanded }: NavItemProps) {
+  const Icon = item.icon
+
+  return (
+    <Link
+      href={item.href}
+      title={!isExpanded ? item.name : undefined}
+      className={`
+        group relative flex items-center rounded-xl transition-all duration-300 ease-in-out
+        ${isExpanded ? 'gap-4 px-4 py-3' : 'justify-center p-3'}
+        ${isActive 
+          ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/30' 
+          : 'text-gray-400 hover:bg-white/5 hover:text-white'}
+      `}
+    >
+      <Icon
+        size={20}
+        className={`shrink-0 transition-transform duration-300 ${!isActive ? 'group-hover:scale-110' : ''}`}
+      />
+      {isExpanded && (
+        <span className="whitespace-nowrap text-sm font-medium tracking-wide">
+          {item.name}
+        </span>
+      )}
+      {/* Active Indicator Pin */}
+      {isActive && !isExpanded && (
+        <div className="absolute right-0 h-1.5 w-1.5 rounded-full bg-white" />
+      )}
+    </Link>
+  )
+}
 
 export default function DashboardUserLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { token, user, logout } = useAuthStore();
+  const router = useRouter()
+  const pathname = usePathname()
+  const { token, user, logout } = useAuthStore()
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+
+  const localToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+
+  useEffect(() => {
+    setIsReady(true)
+    if (!token && !localToken) {
+      router.replace('/login/user')
+      return
+    }
+    if (INVALID_ROUTES.includes(pathname)) {
+      router.replace('/dashboard_user')
+    }
+  }, [token, localToken, pathname, router])
+
+  const activeMenu = useMemo(
+    () => MENU_ITEMS.find((item) => item.href === pathname),
+    [pathname]
+  )
 
   const handleLogout = () => {
-    logout();
-    localStorage.removeItem('token');
-    router.push('/login/user');
-  };
-
-  if (!token) {
-    // localStorage only exists in browser; guard for SSR
-    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      // token exists in localStorage but not in store yet
-    } else {
-      return null;
-    }
+    logout()
+    localStorage.removeItem('token')
+    router.push('/login/user')
   }
 
-  // Redirect legacy/invalid routes (avoids blank/404 when user clicks old links)
-  // NOTE: jangan redirect ke `/dashboard_user` untuk route yang valid seperti `/dashboard_user/showcase`.
-  if (
-    pathname === '/dashboard_user/users' ||
-    pathname === '/dashboard_admin' ||
-    pathname === '/dashboard_admin/users'
-  ) {
-    router.replace('/dashboard_user');
-  }
-
-  const menuItems = [
-    { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
-    { name: 'Showcase', href: '/dashboard_user/showcase', icon: ImageIcon },
-    { name: 'Inventaris', href: '/dashboard_user/inventaris', icon: Box },
-    { name: 'Event', href: '/dashboard_user/event', icon: Calendar },
-    { name: 'Profil', href: '/dashboard_user/profil', icon: User },
-  ];
+  if (!isReady || (!token && !localToken)) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F9F9F7]">
+    <div className="flex min-h-screen bg-[#FDFDFD] text-slate-900 antialiased">
+      {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 bg-[#1C1C1C] text-white flex flex-col transition-all duration-300 lg:static ${
-          isMobileOpen
-            ? 'translate-x-0 w-72'
-            : '-translate-x-full lg:translate-x-0'
-        } ${isSidebarOpen ? 'lg:w-72 p-6' : 'lg:w-20 p-4'}`}
+        className={`
+          fixed inset-y-0 left-0 z-50 flex flex-col bg-[#1A1A1A] text-white transition-all duration-500 ease-in-out lg:static
+          ${isMobileOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'}
+          ${isSidebarExpanded ? 'lg:w-72 p-6' : 'lg:w-24 p-4'}
+        `}
       >
-        <div
-          className={`flex items-center mb-10 ${
-            isSidebarOpen ? 'justify-between' : 'justify-center'
-          }`}
-        >
-          {isSidebarOpen ? (
-            <div className="overflow-hidden whitespace-nowrap">
-              <h1 className="text-xl font-bold tracking-tight">
-                Central Creative Hub
-              </h1>
-              <p className="text-gray-500 text-[10px] mt-1 uppercase font-bold tracking-widest">
-                User panel
-              </p>
+        <div className={`mb-10 flex items-center ${isSidebarExpanded ? 'px-2' : 'justify-center'}`}>
+          {isSidebarExpanded ? (
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-[#EF6145] flex items-center justify-center font-bold">C</div>
+              <div className="flex flex-col">
+                <h1 className="text-sm font-bold leading-none tracking-tight">Creative Hub</h1>
+                <span className="text-[10px] font-medium text-[#EF6145] mt-1">USER PANEL</span>
+              </div>
             </div>
           ) : (
-            <div className="h-10 w-10 bg-[#EF6145] rounded-lg flex items-center justify-center font-bold text-white shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EF6145] font-bold shadow-lg shadow-[#EF6145]/20">
               C
             </div>
           )}
-          <button
-            onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden text-gray-400 hover:text-white"
-          >
-            <X size={24} />
+          <button onClick={() => setIsMobileOpen(false)} className="ml-auto text-gray-500 hover:text-white lg:hidden">
+            <X size={20} />
           </button>
         </div>
 
-        <nav className="flex flex-col gap-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              title={!isSidebarOpen ? item.name : ''}
-              className={`flex items-center transition-all duration-200 rounded-xl ${
-                isSidebarOpen
-                  ? 'gap-4 px-4 py-3'
-                  : 'justify-center p-3'
-              } ${
-                pathname === item.href
-                  ? 'bg-[#EF6145] text-white shadow-lg'
-                  : 'text-gray-400 hover:bg-[#EF6145]/10 hover:text-[#EF6145]'
-              }`}
-            >
-              <item.icon size={22} className="shrink-0" />
-              {isSidebarOpen && (
-                <span className="font-semibold text-sm whitespace-nowrap">
-                  {item.name}
-                </span>
-              )}
-            </Link>
+        <nav className="flex flex-col gap-1.5">
+          <p className={`text-[10px] font-bold text-gray-500 mb-2 px-4 uppercase tracking-widest ${!isSidebarExpanded && 'text-center'}`}>
+            {isSidebarExpanded ? 'Main Menu' : '•••'}
+          </p>
+          {MENU_ITEMS.map((item) => (
+            <NavItem
+              key={item.href}
+              item={item}
+              isActive={pathname === item.href}
+              isExpanded={isSidebarExpanded}
+            />
           ))}
         </nav>
 
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="hidden lg:flex mt-auto items-center justify-center h-10 w-full bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 hover:text-white"
-        >
-          {isSidebarOpen ? (
-            <ChevronLeft size={20} />
-          ) : (
-            <ChevronRight size={20} />
-          )}
-        </button>
+        {/* Sidebar Toggle & Logout on Bottom */}
+        <div className="mt-auto flex flex-col gap-2">
+           <button
+            onClick={() => setIsSidebarExpanded((prev) => !prev)}
+            className="hidden h-10 items-center justify-center rounded-xl bg-white/5 text-gray-400 transition-all hover:bg-white/10 hover:text-white lg:flex"
+          >
+            {isSidebarExpanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+          </button>
+        </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white/80 backdrop-blur-md px-4 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-100">
+      {/* Content Area */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 px-6 backdrop-blur-xl lg:px-10">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileOpen(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
             >
-              <Menu size={24} />
+              <Menu size={20} />
             </button>
-            <h1 className="text-lg lg:text-xl font-bold text-gray-800 tracking-tight">
-              {isSidebarOpen ? 'User Control Panel' : 'Dashboard'}
-            </h1>
+            <nav className="flex items-center gap-2 text-sm font-medium">
+              <span className="text-gray-400">Dashboard</span>
+              <span className="text-gray-300">/</span>
+              <span className="text-gray-900">{activeMenu?.name ?? 'Home'}</span>
+            </nav>
           </div>
 
-          <div className="flex items-center gap-4 lg:gap-6">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-[#CC2525] hover:bg-red-50 rounded-lg transition-all duration-200 group"
-              title="Keluar Aplikasi"
-            >
-              <LogOut
-                size={18}
-                className="transition-transform group-hover:-translate-x-1"
-              />
-              <span className="text-xs font-bold hidden md:block">Logout</span>
+          <div className="flex items-center gap-2 lg:gap-5">
+            {/* Notification placeholder */}
+            <button className="relative rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[#EF6145]">
+              <Bell size={20} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#EF6145] border-2 border-white" />
             </button>
 
-            <div className="h-6 w-[1px] bg-gray-200 hidden md:block"></div>
+            <div className="h-6 w-[1px] bg-gray-100 mx-1" />
 
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <div className="text-xs font-bold text-gray-900 leading-tight">
-                  {user?.nama || 'User'}
-                </div>
-                <div className="text-[10px] text-gray-400 font-medium tracking-tight">
-                  FTI UNTAR
-                </div>
+            {/* Profile & Logout Group */}
+            <div className="flex items-center gap-4">
+              <div className="hidden flex-col items-end sm:flex">
+                <p className="text-xs font-bold text-gray-900 leading-none">
+                  {user?.nama || 'User Name'}
+                </p>
+                <span className="text-[10px] font-medium text-gray-400 mt-1 uppercase">FTI UNTAR</span>
               </div>
-              <div className="h-10 w-10 bg-[#EF6145] rounded-full flex items-center justify-center text-white shadow-md ring-2 ring-white hover:scale-105 transition-transform cursor-pointer">
-                <User size={20} />
+              
+              {/* Avatar Dropdown (Simple) */}
+              <div className="group relative">
+                <div className="flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#EF6145]/10 text-[#EF6145] transition-all hover:ring-4 hover:ring-[#EF6145]/10">
+                  <User size={18} />
+                </div>
+                
+                {/* Minimal Logout Tooltip/Button */}
+                <button 
+                  onClick={handleLogout}
+                  className="absolute right-0 top-12 flex w-32 items-center gap-2 rounded-lg bg-white p-2 text-xs font-bold text-gray-500 opacity-0 shadow-xl ring-1 ring-black/5 transition-all group-hover:top-11 group-hover:opacity-100 hover:text-red-500"
+                >
+                  <LogOut size={14} /> Keluar
+                </button>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="p-4 lg:p-10">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-[#FAFAFA]">
+          <div className="p-6 lg:p-10">
+            <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {children}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
-  );
+  )
 }
-
