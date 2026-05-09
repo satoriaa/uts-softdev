@@ -33,7 +33,7 @@ export default function DashboardUserLayout({
   const handleLogout = () => {
     logout();
     localStorage.removeItem('token');
-    router.push('/login');
+    router.push('/login/user');
   };
 
   if (!token) {

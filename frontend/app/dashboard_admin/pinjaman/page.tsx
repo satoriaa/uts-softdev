@@ -1,17 +1,126 @@
-import CrudPage from '@/components/CrudPage';
+'use client';
+
+import CrudPage from '@/app/components/CrudPage';
+import { Home, CheckCircle2, Clock, ShieldCheck, Map } from 'lucide-react';
 
 export default function PinjamanPage() {
   return (
-    <CrudPage
-      title="Validasi Pinjaman Ruangan"
-      endpoint="/pinjaman"
-      fields={[
-        { name: 'ruang', label: 'ID Ruang', required: true },
-        { name: 'user', label: 'ID User', required: true },
-        { name: 'tanggalPinjam', label: 'Tanggal Pinjam', type: 'date', required: true },
-        { name: 'status', label: 'Status (pending/terima/tolak)', required: true },
-      ]}
-    />
+    <div className="max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 px-4 pb-20">
+      
+      {/* Header Blueprint - Facility Management */}
+      <div className="relative overflow-hidden bg-[#1e1e1e] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border border-white/5">
+        
+        {/* Background Pattern: Blueprint Grid */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
+             style={{ 
+               backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1px)`, 
+               backgroundSize: '30px 30px' 
+             }}>
+        </div>
+
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
+              <ShieldCheck className="text-blue-400" size={16} />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">
+                Authorized Access Only
+              </span>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-none">
+              Space <br />
+              <span className="text-[#EF6145]">Validator.</span>
+            </h1>
+            
+            <p className="text-gray-400 max-w-sm font-medium leading-relaxed">
+              Sistem kendali dan validasi penggunaan studio, galeri, dan ruang kreatif di lingkungan <span className="text-white italic">Campus Hub.</span>
+            </p>
+          </div>
+
+          {/* Room Status Preview Cards */}
+          <div className="flex gap-4">
+            <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center w-32 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
+              <Clock className="mx-auto mb-2 text-yellow-500 opacity-50" size={24} />
+              <div className="text-xl font-black italic">PENDING</div>
+              <div className="text-[9px] text-gray-500 uppercase font-bold mt-1">Reviewing</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center w-32 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+              <CheckCircle2 className="mx-auto mb-2 text-green-500 opacity-50" size={24} />
+              <div className="text-xl font-black italic">SECURE</div>
+              <div className="text-[9px] text-gray-500 uppercase font-bold mt-1">Validated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="relative">
+        {/* Aksen Teknis di Pojok Card */}
+        <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 border-gray-200 rounded-tl-xl z-0"></div>
+        <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 border-gray-200 rounded-br-xl z-0"></div>
+
+        <div className="bg-white rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden relative z-10">
+          {/* Internal Navigation Bar */}
+          <div className="px-10 py-6 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gray-900 rounded-lg">
+                <Map className="text-white" size={18} />
+              </div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-gray-700">Log Peminjaman Ruang</h2>
+            </div>
+            <div className="text-[10px] font-bold text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+              SISTEM VALIDASI V.2.6
+            </div>
+          </div>
+
+          <div className="p-6 md:p-10">
+            <CrudPage
+              title="" // Judul sudah dihandle header custom
+              endpoint="/pinjaman"
+              fields={[
+                { 
+                  name: 'ruang', 
+                  label: 'ID / Kode Ruangan', 
+                  required: true 
+                },
+                { 
+                  name: 'user', 
+                  label: 'ID Pengguna / NIM', 
+                  required: true 
+                },
+                { 
+                  name: 'tanggalPinjam', 
+                  label: 'Jadwal Peminjaman', 
+                  type: 'date', 
+                  required: true 
+                },
+                { 
+                  name: 'status', 
+                  label: 'Keputusan Validasi (pending/terima/tolak)', 
+                  required: true 
+                },
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Safety Info Footer */}
+      <div className="mt-12 bg-blue-50/50 border border-blue-100 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+            <Home size={18} className="text-blue-600" />
+          </div>
+          <p className="text-xs text-blue-900/70 font-medium max-w-md italic">
+            "Pastikan ketersediaan studio telah dikonfirmasi melalui koordinator lab sebelum melakukan validasi akhir."
+          </p>
+        </div>
+        <div className="text-[10px] font-black text-blue-900/40 uppercase tracking-widest">
+          Facilities & Infrastructure
+        </div>
+      </div>
+    </div>
   );
 }
-

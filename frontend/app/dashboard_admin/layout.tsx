@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
-import api from '@/lib/axios';
 import { 
   User, 
   LayoutDashboard, 
@@ -16,114 +15,180 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  LogOut // Import ikon logout
+  LogOut,
+  ShoppingBag,
+  Trophy,
+  BookOpen,
+  Settings,
+  Bell
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, token, setAuth, logout } = useAuthStore();
+  const { user, token, logout } = useAuthStore();
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // ... (useEffect Auth tetap sama)
-
   const handleLogout = () => {
     logout();
     localStorage.removeItem('token');
-    router.push('/login');
+    router.push('/login/user');
   };
 
   if (!token && !localStorage.getItem('token')) return null;
 
-  const menuItems = [
-    { name: 'Dashboard', href: '/dashboard_admin', icon: LayoutDashboard },
-    { name: 'Ruangan', href: '/dashboard_admin/ruang', icon: Box },
-    { name: 'Tenant', href: '/dashboard_admin/tenant', icon: Box },
-    { name: 'Lomba', href: '/dashboard_admin/lomba', icon: LayoutDashboard },
-    { name: 'Karya', href: '/dashboard_admin/karya', icon: ImageIcon },
-    { name: 'Proker', href: '/dashboard_admin/proker', icon: Calendar },
-    { name: 'Workshop', href: '/dashboard_admin/workshop', icon: Calendar },
-    { name: 'Event', href: '/dashboard_admin/event', icon: Calendar },
-    { name: 'Majalah', href: '/dashboard_admin/majalah', icon: ImageIcon },
-    { name: 'User', href: '/dashboard_admin/users', icon: User },
-    { name: 'Validasi Pinjaman', href: '/dashboard_admin/pinjaman', icon: CheckSquare },
+  // Menu yang dikelompokkan agar lebih rapi
+  const navigation = [
+    {
+      group: "Main",
+      items: [
+        { name: 'Dashboard', href: '/dashboard_admin', icon: LayoutDashboard },
+      ]
+    },
+    {
+      group: "Content & Media",
+      items: [
+        { name: 'Karya', href: '/dashboard_admin/karya', icon: ImageIcon },
+        { name: 'Majalah', href: '/dashboard_admin/majalah', icon: BookOpen },
+        { name: 'Event', href: '/dashboard_admin/event', icon: Calendar },
+        { name: 'Workshop', href: '/dashboard_admin/workshop', icon: Calendar },
+      ]
+    },
+    {
+      group: "Management",
+      items: [
+        { name: 'Ruangan', href: '/dashboard_admin/ruang', icon: Box },
+        { name: 'Tenant', href: '/dashboard_admin/tenant', icon: ShoppingBag },
+        { name: 'Lomba', href: '/dashboard_admin/lomba', icon: Trophy },
+        { name: 'Proker', href: '/dashboard_admin/proker', icon: CheckSquare },
+      ]
+    },
+    {
+      group: "System",
+      items: [
+        { name: 'Validasi Pinjaman', href: '/dashboard_admin/pinjaman', icon: CheckSquare },
+        { name: 'User Management', href: '/dashboard_admin/users', icon: User },
+      ]
+    }
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#F9F9F7]">
+    <div className="flex min-h-screen bg-[#FDFDFB]">
       {/* MOBILE OVERLAY */}
       {isMobileOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm" onClick={() => setIsMobileOpen(false)} />
+        <div className="fixed inset-0 bg-black/60 z-[60] lg:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsMobileOpen(false)} />
       )}
 
-      {/* SIDEBAR (Kode sidebar sama dengan sebelumnya) */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#1C1C1C] text-white flex flex-col transition-all duration-300 lg:static ${isMobileOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'} ${isSidebarOpen ? 'lg:w-72 p-6' : 'lg:w-20 p-4'}`}>
-        <div className={`flex items-center mb-10 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
+      {/* SIDEBAR */}
+      <aside className={`fixed inset-y-0 left-0 z-[70] bg-[#121212] text-white flex flex-col transition-all duration-500 ease-in-out lg:static shadow-2xl ${isMobileOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'} ${isSidebarOpen ? 'lg:w-72 p-6' : 'lg:w-24 p-4'}`}>
+        
+        {/* Logo Section */}
+        <div className={`flex items-center mb-12 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen ? (
-            <div className="overflow-hidden whitespace-nowrap">
-              <h1 className="text-xl font-bold tracking-tight">Central Creative Hub</h1>
-              <p className="text-gray-500 text-[10px] mt-1 uppercase font-bold tracking-widest">Admin panel</p>
+            <div className="flex items-center gap-3 animate-in fade-in duration-700">
+              <div className="h-9 w-9 bg-[#EF6145] rounded-xl flex items-center justify-center font-black text-white shadow-lg rotate-3">C</div>
+              <div className="overflow-hidden">
+                <h1 className="text-lg font-black tracking-tighter leading-none">CREATIVE HUB</h1>
+                <p className="text-[#EF6145] text-[9px] mt-1 uppercase font-black tracking-[0.2em]">FSRD UNTAR</p>
+              </div>
             </div>
           ) : (
-            <div className="h-10 w-10 bg-[#EF6145] rounded-lg flex items-center justify-center font-bold text-white shadow-lg">C</div>
+            <div className="h-10 w-10 bg-[#EF6145] rounded-xl flex items-center justify-center font-bold text-white shadow-lg hover:rotate-12 transition-transform cursor-pointer">C</div>
           )}
           <button onClick={() => setIsMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white"><X size={24} /></button>
         </div>
 
-        <nav className="flex flex-col gap-2">
-          {menuItems.map((item) => (
-            <Link key={item.name} href={item.href} title={!isSidebarOpen ? item.name : ""} className={`flex items-center transition-all duration-200 rounded-xl ${isSidebarOpen ? 'gap-4 px-4 py-3' : 'justify-center p-3'} ${pathname === item.href ? 'bg-[#EF6145] text-white shadow-lg' : 'text-gray-400 hover:bg-[#EF6145]/10 hover:text-[#EF6145]'}`}>
-              <item.icon size={22} className="shrink-0" />
-              {isSidebarOpen && <span className="font-semibold text-sm whitespace-nowrap">{item.name}</span>}
-            </Link>
+        {/* Navigation Groups */}
+        <nav className="flex flex-col gap-8 overflow-y-auto no-scrollbar pb-10">
+          {navigation.map((group) => (
+            <div key={group.group} className="flex flex-col gap-2">
+              {isSidebarOpen && (
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-4 mb-2">
+                  {group.group}
+                </p>
+              )}
+              {group.items.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link 
+                    key={item.name} 
+                    href={item.href} 
+                    className={`group flex items-center transition-all duration-300 rounded-2xl relative ${isSidebarOpen ? 'gap-4 px-4 py-3.5' : 'justify-center p-4'} ${isActive ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <item.icon size={isActive ? 22 : 20} className={`shrink-0 transition-transform ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                    {isSidebarOpen && <span className={`text-sm font-bold whitespace-nowrap transition-all ${isActive ? 'translate-x-1' : ''}`}>{item.name}</span>}
+                    {!isSidebarOpen && isActive && <div className="absolute right-0 w-1 h-6 bg-[#EF6145] rounded-l-full" />}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
         </nav>
 
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden lg:flex mt-auto items-center justify-center h-10 w-full bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 hover:text-white">
+        {/* Toggle Sidebar Button */}
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          className="hidden lg:flex mt-auto items-center justify-center h-12 w-full bg-white/5 hover:bg-white/10 rounded-2xl text-gray-400 hover:text-white transition-all border border-white/5"
+        >
           {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </button>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white/80 backdrop-blur-md px-4 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-100">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"><Menu size={24} /></button>
-            <h1 className="text-lg lg:text-xl font-bold text-gray-800 tracking-tight">{isSidebarOpen ? "Admin Control Panel" : "Dashboard"}</h1>
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        
+        {/* HEADER */}
+        <header className="bg-white/70 backdrop-blur-xl px-6 lg:px-10 py-5 flex justify-between items-center sticky top-0 z-[40] border-b border-gray-100">
+          <div className="flex items-center gap-6">
+            <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2.5 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors"><Menu size={24} /></button>
+            <div className="hidden md:block">
+              <h1 className="text-xl font-black text-gray-900 tracking-tight">
+                {pathname.split('/').pop()?.toUpperCase() || 'DASHBOARD'}
+              </h1>
+              <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">System Administrator</p>
+            </div>
           </div>
           
-          {/* BAGIAN PROFIL & LOGOUT */}
-          <div className="flex items-center gap-4 lg:gap-6">
-            {/* Tombol Logout di sebelah kiri Mini Profile */}
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-[#CC2525] hover:bg-red-50 rounded-lg transition-all duration-200 group"
-              title="Keluar Aplikasi"
-            >
-              <LogOut size={18} className="transition-transform group-hover:-translate-x-1" />
-              <span className="text-xs font-bold hidden md:block">Logout</span>
-            </button>
+          <div className="flex items-center gap-3 lg:gap-6">
+            {/* Quick Actions */}
+            <div className="hidden sm:flex items-center gap-2 mr-2">
+              <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"><Bell size={20}/></button>
+              <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"><Settings size={20}/></button>
+            </div>
 
-            {/* Garis Pemisah Kecil */}
-            <div className="h-6 w-[1px] bg-gray-200 hidden md:block"></div>
+            <div className="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
 
-            {/* Mini Profile */}
-            <div className="flex items-center gap-3">
+            {/* Profile & Logout Group */}
+            <div className="flex items-center gap-4 pl-2">
               <div className="text-right hidden sm:block">
-                <div className="text-xs font-bold text-gray-900 leading-tight">{user?.nama || 'Admin FTI'}</div>
-                <div className="text-[10px] text-gray-400 font-medium tracking-tight">FTI UNTAR</div>
+                <div className="text-sm font-black text-gray-900 leading-none mb-1">{user?.nama || 'Admin Central'}</div>
+                <div className="text-[10px] font-black text-[#EF6145] tracking-tight uppercase">Master Admin</div>
               </div>
-              <div className="h-10 w-10 bg-[#EF6145] rounded-full flex items-center justify-center text-white shadow-md ring-2 ring-white hover:scale-105 transition-transform cursor-pointer">
-                <User size={20} />
+              
+              <div className="group relative">
+                <div className="h-11 w-11 bg-gradient-to-tr from-[#121212] to-[#333] rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-white transition-transform group-hover:rotate-6 cursor-pointer">
+                  <User size={22} />
+                </div>
               </div>
+
+              <button 
+                onClick={handleLogout}
+                className="ml-2 p-2.5 text-gray-400 hover:text-[#EF6145] hover:bg-[#EF6145]/5 rounded-xl transition-all group"
+                title="Logout"
+              >
+                <LogOut size={22} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         </header>
 
-        <main className="p-4 lg:p-10">
-          {children}
+        {/* PAGE CONTENT */}
+        <main className="flex-1 overflow-y-auto no-scrollbar bg-[#FDFDFB] p-6 lg:p-10">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
