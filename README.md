@@ -4,7 +4,7 @@ Proyek ini adalah dashboard admin fullstack dengan **Next.js** (frontend), **Nod
 
 ---
 
-## 📁 Struktur Folder
+## Struktur Folder
 
 ```
 uts-softdev/
@@ -25,7 +25,7 @@ uts-softdev/
 
 ---
 
-## 🚀 Fitur Backend (11 Modul CRUD)
+## Fitur Backend (11 Modul CRUD)
 
 1. **Auth** — Login & Register (JWT)
 2. **Karya** — Kelola karya (judul, deskripsi, komen, like)
@@ -41,7 +41,7 @@ uts-softdev/
 
 ---
 
-## ⚙️ Setup & Menjalankan
+## Setup & Menjalankan
 
 ### 1. Backend
 
@@ -69,7 +69,7 @@ Aplikasi akan berjalan di **http://localhost:3000**
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 | Endpoint | Method | Keterangan |
 |----------|--------|------------|
@@ -88,7 +88,7 @@ Aplikasi akan berjalan di **http://localhost:3000**
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Backend:** Node.js, Express.js, Mongoose, JWT, bcryptjs, Multer, Cloudinary
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, Axios, Lucide React
@@ -97,14 +97,14 @@ Aplikasi akan berjalan di **http://localhost:3000**
 
 ---
 
-## 📝 Catatan
+## Catatan
 
 - Pastikan `.env` di backend sudah benar (terutama `CLOUDINARY_*` jika ingin upload gambar).
 - Untuk fitur admin-only, gunakan header `Authorization: Bearer <token>`.
 
 ---
 
-## 📌 Project status (update: 2026-05-09)
+## Project status (update: 2026-05-09)
 
 Recent work in this repository (what changed and how to use it):
 
@@ -129,7 +129,7 @@ Recent work in this repository (what changed and how to use it):
 
 - Why this matters: Next.js requires components that use hooks (useEffect/useState) to be client components; pages that import `CrudPage` were converted to client pages to avoid runtime build errors.
 
-## 🔧 How to use `CrudPage`
+## How to use `CrudPage`
 
 Place the `CrudPage` component in a page and pass these props:
 
@@ -156,10 +156,10 @@ Notes on fields and behavior:
 - File fields accept a File object or (when using Cloudinary widget) you can set the hidden input `cloudinary-gambar-url` — the component will include file uploads as multipart/form-data.
 - The component expects the backend list endpoints to return an object with `data` array (e.g. `{ data: [...] }`) — this is how existing frontend pages consume API results.
 
-## ✅ Pages that already use `CrudPage`
+## Pages that already use `CrudPage`
 - All admin modules (Event, Karya, Lomba, Majalah, Pinjaman, Proker, Ruang, Tenant, Workshop, Users) render `CrudPage` with module-specific fields. See `frontend/app/dashboard_admin/*/page.tsx`.
 
-## 🧪 Build & test notes
+## Build & test notes
 
 - Before running the frontend, install dependencies and start both servers:
 
@@ -174,7 +174,7 @@ cd ../frontend; npm install; npm run dev
     - Run `npm run build` in `frontend` to typecheck and surface any TypeScript/Next build errors.
     - Run `npm run dev` for local development to visually verify the admin pages and CRUD flows.
 
-## 📍 Next steps (optional enhancements)
+## Next steps (optional enhancements)
 - Add server-side pagination and filtering support in the API to avoid loading large lists on the client.
 - Improve per-field validation and error display in `CrudPage`.
 - Add automated tests for the CRUD flows (small integration tests against a test backend or mocked axios).
