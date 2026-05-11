@@ -37,6 +37,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login/user');
   };
 
+  useEffect(() => {
+    if (user && user.role !== 'admin') {
+      router.replace('/login/admin');
+    }
+  }, [user, router]);
+
   if (!token && !localStorage.getItem('token')) return null;
 
   // Menu yang dikelompokkan agar lebih rapi

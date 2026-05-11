@@ -91,10 +91,14 @@ export default function DashboardUserLayout({
       router.replace('/login/user')
       return
     }
+    if (user && user.role !== 'student') {
+      router.replace('/login/user')
+      return
+    }
     if (INVALID_ROUTES.includes(pathname)) {
       router.replace('/dashboard_user')
     }
-  }, [token, localToken, pathname, router])
+  }, [token, localToken, pathname, router, user])
 
   const activeMenu = useMemo(
     () => MENU_ITEMS.find((item) => item.href === pathname),

@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/admin/login', { email, password });
       setAuth(res.data.data, res.data.token); 
       router.push('/dashboard_admin');
     } catch (err: any) {
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
               </label>
               <input
                 type="email" 
-                placeholder="nama@student.university.ac.id"
+                placeholder="admin@company.com"
                 className="w-full p-3.5 rounded-lg border border-gray-200 text-black focus:outline-none focus:ring-1 focus:ring-gray-300 transition-colors"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)} 
@@ -89,6 +89,12 @@ export default function AdminLoginPage() {
               </button>
             </div>
 
+            <p className="text-center text-sm mt-4 text-gray-600">
+              Belum punya akun admin?{' '}
+              <Link href="/register/admin" className="text-[#E85C41] hover:underline font-medium">
+                Daftar Admin
+              </Link>
+            </p>
           </form>
         </div>
       </div>

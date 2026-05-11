@@ -26,9 +26,11 @@ export default function LoginPage() {
     e.preventDefault(); // mencegah reload
     try {
       const res = await api.post('/auth/login', { email, password }); // 🔥 kirim email
+      if (res.data.data?.role === 'admin') {
+        alert('Email admin tidak dapat masuk di halaman user. Silakan gunakan halaman Login Admin.');
+        return;
+      }
       setAuth(res.data.data, res.data.token); // simpan auth
-      
-      // 🔥 Revisi: Habis login diarahkan ke user-home (bukan langsung dashboard_user)
       router.push('/dashboard_user'); 
 
     } catch (err: any) {
