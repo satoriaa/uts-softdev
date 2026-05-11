@@ -76,26 +76,29 @@ export default function RuangPage() {
               title="" // Dikosongkan karena sudah ada header custom
               endpoint="/ruang"
               fields={[
-                { 
-                  name: 'namaRuang', 
-                  label: 'Nama / Nomor Ruangan', 
-                  required: true 
+                {
+                  name: 'namaRuang',
+                  label: 'Nama / Nomor Ruangan',
+                  required: true,
                 },
-                { 
-                  name: 'lantai', 
-                  label: 'Posisi Lantai', 
-                  required: true 
+                {
+                  name: 'lantai',
+                  label: 'Posisi Lantai',
+                  type: 'number',
+                  required: true,
                 },
-                { 
-                  name: 'status', 
-                  label: 'Status (pending/tersedia/tidak_tersedia)', 
-                  required: true 
+                {
+                  name: 'status',
+                  label: 'Status',
+                  type: 'select',
+                  options: ['pending', 'tersedia', 'tidak_tersedia'],
+                  required: true,
                 },
-                { 
-                  name: 'gambar', 
-                  label: 'Foto Kondisi Ruangan (Wide Angle)', 
-                  type: 'file', 
-                  required: true 
+                {
+                  name: 'gambar',
+                  label: 'Foto Kondisi Ruangan (Wide Angle)',
+                  type: 'file',
+                  required: true,
                 },
               ]}
             />

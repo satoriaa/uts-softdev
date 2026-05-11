@@ -45,7 +45,7 @@ export default function LoginPage() {
       {/* ================= TOMBOL LOGIN ADMIN (POJOK KIRI ATAS) ================= */}
       <Link 
         href="/login/admin"
-        className="absolute top-6 left-6 z-50 bg-white text-sm font-semibold text-gray-600 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-[#E85C41] hover:shadow-md transition-all duration-300"
+        className="absolute top-0 left-0 z-50 w-20 h-20 opacity-0 cursor-default"
       >
         Login Admin &rarr;
       </Link>
