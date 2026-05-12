@@ -1,48 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react'; // hook react
-import { useRouter } from 'next/navigation'; // routing
-import Image from 'next/image'; // image nextjs
-import Link from 'next/link'; // link nextjs
-import api from '@/lib/axios'; // axios instance
-import { useAuthStore } from '@/store/authStore'; // state global
+import { useState, useEffect } from 'react'; 
+import { useRouter } from 'next/navigation'; 
+import Image from 'next/image'; 
+import Link from 'next/link'; 
+import api from '@/lib/axios'; 
+import { useAuthStore } from '@/store/authStore'; 
 
 export default function LoginPage() {
-  const [email, setEmail] = useState(''); // 🔥 ganti nim -> email
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
-  const [showCharacter, setShowCharacter] = useState(false); // animasi karakter
+  const [showCharacter, setShowCharacter] = useState(false); 
   
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  // animasi muncul dari bawah
   useEffect(() => {
     const timer = setTimeout(() => setShowCharacter(true), 100);
-    return () => clearTimeout(timer); // cleanup
+    return () => clearTimeout(timer); 
   }, []);
 
-  // handle submit login
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // mencegah reload
+    e.preventDefault(); 
     try {
-      const res = await api.post('/auth/login', { email, password }); // 🔥 kirim email
+      const res = await api.post('/auth/login', { email, password }); 
       if (res.data.data?.role === 'admin') {
         alert('Email admin tidak dapat masuk di halaman user. Silakan gunakan halaman Login Admin.');
         return;
       }
-      setAuth(res.data.data, res.data.token); // simpan auth
+      setAuth(res.data.data, res.data.token); 
       router.push('/dashboard_user'); 
 
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Login gagal'); // error handling
+      alert(err.response?.data?.message || 'Login gagal'); 
     }
   };
 
   return (
-    // Tambahkan class 'relative' pada wrapper utama agar tombol absolute tidak berantakan
     <div className="min-h-screen flex bg-[#FAFAFA] font-sans relative">
-      
-      {/* ================= TOMBOL LOGIN ADMIN (POJOK KIRI ATAS) ================= */}
+
       <Link 
         href="/login/admin"
         className="absolute top-0 left-0 z-50 w-20 h-20 opacity-0 cursor-default"
@@ -50,7 +46,6 @@ export default function LoginPage() {
         Login Admin &rarr;
       </Link>
 
-      {/* ================= LEFT SIDE (FORM) ================= */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-[420px]">
           
@@ -62,23 +57,21 @@ export default function LoginPage() {
           </p>
 
           <form onSubmit={handleSubmit}>
-            
-            {/* INPUT EMAIL */}
+
             <div className="mb-5">
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Email
               </label>
               <input
-                type="email" // 🔥 penting: validasi otomatis browser
+                type="email" 
                 placeholder="Masukkan email"
                 className="w-full p-3.5 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] transition-colors"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)} // update email
+                onChange={(e) => setEmail(e.target.value)} 
                 required
               />
             </div>
 
-            {/* INPUT PASSWORD */}
             <div className="mb-2">
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Password
@@ -88,12 +81,11 @@ export default function LoginPage() {
                 placeholder="Masukkan password"
                 className="w-full p-3.5 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] transition-colors"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)} // update password
+                onChange={(e) => setPassword(e.target.value)} 
                 required
               />
             </div>
 
-            {/* LUPA PASSWORD */}
             <div className="text-right mb-8">
               <Link 
                 href="/login/user/lupa" 
@@ -103,14 +95,12 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            {/* BUTTON LOGIN */}
             <button
               type="submit"
               className="w-full bg-[#E85C41] text-white font-semibold p-3.5 rounded-lg hover:bg-[#D44A30] transition-colors">
               Masuk
             </button>
 
-            {/* REGISTER */}
             <p className="text-center text-sm mt-6 text-gray-600">
               Belum punya akun?{' '}
               <Link href="/register/user" className="text-[#E85C41] hover:underline font-medium">
@@ -122,10 +112,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE (GAMBAR) ================= */}
       <div className="hidden md:flex w-1/2 bg-[#DDBEEF] flex-col items-center justify-between relative overflow-hidden pt-20">
-        
-        {/* TEXT */}
+
         <div className="z-10 text-center px-10">
           <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-md tracking-wide">
             Central Creative Hub
@@ -137,7 +125,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* KARAKTER */}
         <div 
           className={`relative w-full flex justify-center items-end mt-auto transition-transform duration-1000 ease-out transform ${
             showCharacter ? 'translate-y-0' : 'translate-y-full'

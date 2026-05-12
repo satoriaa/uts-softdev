@@ -1,12 +1,9 @@
-// Fix script untuk menambahkan field 'role' ke semua Admin yang belum memilikinya
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load env from backend folder
 dotenv.config({ path: path.join(__dirname, 'backend', '.env') });
 
-// Import Admin model from backend folder
 const Admin = require(path.join(__dirname, 'backend', 'models', 'Admin'));
 
 const connectDB = async () => {
@@ -22,7 +19,6 @@ const connectDB = async () => {
 
 const fixAdminRole = async () => {
   try {
-    // Find all admins that don't have a role or have incorrect role
     const result = await Admin.updateMany(
       { $or: [{ role: { $exists: false } }, { role: { $ne: 'admin' } }] },
       { $set: { role: 'admin' } }
@@ -31,7 +27,6 @@ const fixAdminRole = async () => {
     console.log(`Fixed ${result.modifiedCount} admin(s)`);
     console.log(`Matched ${result.matchedCount} admin(s)`);
 
-    // Verify
     const admins = await Admin.find({}).select('-password');
     console.log('\nCurrent admins:');
     admins.forEach(admin => {

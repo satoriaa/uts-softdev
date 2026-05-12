@@ -10,20 +10,18 @@ export default function LupaPasswordPage() {
   const router = useRouter();
   const [showCharacter, setShowCharacter] = useState(false);
 
-  // Menggunakan state form object seperti di halaman register
+  
   const [form, setForm] = useState({
     email: '',
     password: '',
-    password_confirmation: '' // Disamakan dengan standar penamaan konfirmasi password di backend
+    password_confirmation: '' 
   });
 
   useEffect(() => {
-    // Animasi muncul delay 100ms
     const timer = setTimeout(() => setShowCharacter(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handler serbaguna untuk semua input text
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -31,14 +29,12 @@ export default function LupaPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validasi kecocokan password
     if (form.password !== form.password_confirmation) {
       alert('Password baru dan konfirmasi password tidak cocok!');
       return;
     }
 
     try {
-      // Mengirim langsung object form (berisi email, password, password_confirmation)
       await api.post('/auth/reset-password', form);
       
       alert('Password berhasil diubah! Silakan login.');
@@ -51,8 +47,7 @@ export default function LupaPasswordPage() {
 
   return (
     <div className="min-h-screen flex bg-[#FAFAFA] font-sans relative">
-      
-      {/* ================= TOMBOL KEMBALI KE LOGIN (POJOK KIRI ATAS) ================= */}
+
       <Link 
         href="/login/user"
         className="absolute top-6 left-6 z-50 bg-white text-sm font-semibold text-gray-600 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-[#E85C41] hover:shadow-md transition-all duration-300"
@@ -60,7 +55,6 @@ export default function LupaPasswordPage() {
         &larr; Kembali ke Login
       </Link>
 
-      {/* ================= LEFT SIDE (FORM) ================= */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
         <div className="w-full max-w-[420px]">
           
@@ -118,7 +112,6 @@ export default function LupaPasswordPage() {
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE (GAMBAR) ================= */}
       <div className="hidden md:flex w-1/2 bg-[#DDBEEF] flex-col items-center justify-between relative overflow-hidden pt-20">
         
         <div className="z-10 text-center px-10">
@@ -132,7 +125,6 @@ export default function LupaPasswordPage() {
           </p>
         </div>
 
-        {/* CONTAINER KARAKTER (Animasi muncul dari bawah) */}
         <div 
           className={`relative w-full flex justify-center items-end mt-auto transition-transform duration-1000 ease-out transform ${
             showCharacter ? 'translate-y-0' : 'translate-y-full'

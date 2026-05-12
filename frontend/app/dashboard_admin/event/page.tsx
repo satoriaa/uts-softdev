@@ -6,15 +6,10 @@ import { Sparkles, Calendar, MapPin, Palette } from 'lucide-react';
 export default function EventPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 px-4 pb-20">
-      
-      {/* Header Estetik Khusus Anak FSRD */}
       <div className="relative overflow-hidden bg-[#1a1a1a] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border border-white/5">
-        
-        {/* Dekorasi Abstrak - Enhanced */}
         <div className="absolute top-[-40px] right-[-40px] w-80 h-80 bg-[#EF6145] rounded-full blur-[100px] opacity-25 animate-pulse"></div>
         <div className="absolute bottom-[-60px] left-[-20px] w-60 h-60 bg-blue-600 rounded-full blur-[90px] opacity-15"></div>
-        
-        {/* Garis Grid Dekoratif (Khas Anak Desain) */}
+
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
              style={{ backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`, backgroundSize: '40px 40px' }}>
         </div>
@@ -39,8 +34,7 @@ export default function EventPage() {
               Platform kurasi agenda kreatif: Pameran, Workshop, dan Seminar Visual di <span className="text-white">Central Creative Hub.</span>
             </p>
           </div>
-          
-          {/* Status Pills */}
+
           <div className="flex gap-3">
              <div className="group bg-white/5 hover:bg-[#EF6145] transition-all duration-500 backdrop-blur-xl p-5 rounded-3xl border border-white/10 text-center min-w-[110px]">
                 <Palette className="mx-auto mb-2 text-[#EF6145] group-hover:text-white transition-colors" size={20} />
@@ -57,13 +51,9 @@ export default function EventPage() {
         </div>
       </div>
 
-      {/* Bagian CRUD Utama dengan Glassmorphism Wrapper */}
       <div className="relative group">
-        {/* Glow effect di belakang card */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#EF6145] to-blue-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
-        
         <div className="relative bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden transition-all duration-500">
-          {/* Header Internal Card */}
           <div className="px-8 pt-8 pb-2 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-3">
               <div className="w-2 h-8 bg-[#EF6145] rounded-full"></div>
@@ -73,7 +63,7 @@ export default function EventPage() {
 
           <div className="p-4 md:p-8">
             <CrudPage
-              title="" // Dikosongkan karena sudah pakai header custom di atas
+              title="" 
               endpoint="/event"
               fields={[
                 { name: 'judul', label: 'Nama Event', required: true },
@@ -89,7 +79,6 @@ export default function EventPage() {
         </div>
       </div>
 
-      {/* Footer Kreatif yang lebih 'Bold' */}
       <div className="mt-12 flex flex-col items-center gap-4">
         <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         <div className="flex items-center gap-6 text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">

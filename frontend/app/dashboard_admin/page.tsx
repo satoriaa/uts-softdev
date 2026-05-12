@@ -33,8 +33,7 @@ export default function DashboardHome() {
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      
-      {/* Welcome Banner - High Impact */}
+
       <div className="relative overflow-hidden bg-[#121212] rounded-[2.5rem] p-8 md:p-12 mb-10 text-white shadow-2xl">
         <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12">
           <Sparkles size={200} />
@@ -52,8 +51,6 @@ export default function DashboardHome() {
           </p>
         </div>
       </div>
-
-      {/* 4 TOP CARDS - Modern Glass/Flat Mix */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <StatCard icon={<ImageIcon size={24}/>} color="blue" value={stats.karya || 12} label="Pending Kurasi" trend="+2 New" />
         <StatCard icon={<Clock size={24}/>} color="orange" value={stats.ruang || 5} label="Pinjaman Ruang" trend="Urgent" />
@@ -62,7 +59,6 @@ export default function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        {/* MIDDLE ACTION CARDS - Column 1 & 2 */}
         <div className="lg:col-span-2 space-y-8">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
@@ -91,7 +87,6 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* RECENT ACTIVITY / STATS - Column 3 */}
         <div className="space-y-6">
           <h3 className="text-2xl font-black text-gray-900 tracking-tight">System Health</h3>
           <div className="bg-white rounded-[2rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-50 flex flex-col gap-6">

@@ -23,7 +23,6 @@ exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
     if (req.file) payload.gambar = req.file.path;
-    // Convert comma-separated string to array for listJualan
     if (typeof payload.listJualan === 'string') {
       payload.listJualan = payload.listJualan.split(',').map((s) => s.trim()).filter(Boolean);
     }
@@ -38,7 +37,6 @@ exports.update = async (req, res) => {
   try {
     const payload = { ...req.body };
     if (req.file) payload.gambar = req.file.path;
-    // Convert comma-separated string to array for listJualan
     if (typeof payload.listJualan === 'string') {
       payload.listJualan = payload.listJualan.split(',').map((s) => s.trim()).filter(Boolean);
     }

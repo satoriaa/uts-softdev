@@ -2,7 +2,7 @@
 
 import { useState } from 'react'; 
 import { useRouter } from 'next/navigation'; 
-import Link from 'next/link'; // Import Link dari next.js
+import Link from 'next/link'; 
 import api from '@/lib/axios'; 
 import { useAuthStore } from '@/store/authStore'; 
 
@@ -25,10 +25,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    // Tambahkan class 'relative' agar tombol di pojok kiri atas berfungsi
     <div className="min-h-screen flex bg-[#F9F7F3] font-sans relative">
-      
-      {/* ================= TOMBOL LOGIN USER (POJOK KIRI ATAS) ================= */}
+
       <Link 
         href="/login/user"
         className="absolute top-6 left-6 z-50 bg-white text-sm font-semibold text-gray-600 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-black hover:shadow-md transition-all duration-300"
@@ -36,7 +34,6 @@ export default function AdminLoginPage() {
         &larr; Login User
       </Link>
 
-      {/* ================= LEFT SIDE (FORM) ================= */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-[420px]">
           
@@ -49,8 +46,6 @@ export default function AdminLoginPage() {
           </p>
 
           <form onSubmit={handleSubmit}>
-            
-            {/* INPUT EMAIL */}
             <div className="mb-5">
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Email/User Name Admin
@@ -65,7 +60,6 @@ export default function AdminLoginPage() {
               />
             </div>
 
-            {/* INPUT PASSWORD */}
             <div className="mb-2">
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Password
@@ -80,7 +74,6 @@ export default function AdminLoginPage() {
               />
             </div>
 
-            {/* BUTTON LOGIN */}
             <div className="mt-8">
               <button
                 type="submit"
@@ -99,7 +92,6 @@ export default function AdminLoginPage() {
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE (GAMBAR -> TEXT ONLY) ================= */}
       <div className="hidden md:flex w-1/2 bg-[#212121] flex-col items-center justify-center p-10">
         <div className="z-10 text-center">
           <h1 className="text-6xl font-extrabold text-white mb-6 tracking-wide">

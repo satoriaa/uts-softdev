@@ -6,11 +6,7 @@ import { Briefcase, Zap, BarChart3, Layers, CheckSquare } from 'lucide-react';
 export default function ProkerPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-left-6 duration-1000 px-4 pb-20">
-      
-      {/* Header Visioner - Program Strategy */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#222] to-[#333] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border border-white/5">
-        
-        {/* Dekorasi Garis Progress (Khas Perencanaan) */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#EF6145] to-transparent opacity-50"></div>
         <div className="absolute bottom-10 right-[-20px] w-64 h-64 bg-orange-500 rounded-full blur-[100px] opacity-10"></div>
 
@@ -33,7 +29,6 @@ export default function ProkerPage() {
             </p>
           </div>
 
-          {/* Key Metrics Deco */}
           <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center">
                 <BarChart3 className="text-[#EF6145] mb-2" size={20} />
@@ -49,9 +44,7 @@ export default function ProkerPage() {
         </div>
       </div>
 
-      {/* Main Table/Form Area */}
       <div className="relative">
-        {/* Aksen Label Melayang */}
         <div className="absolute -top-4 left-10 z-20">
           <div className="bg-[#EF6145] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-lg shadow-[#EF6145]/30">
             Internal Roadmap
@@ -59,7 +52,6 @@ export default function ProkerPage() {
         </div>
 
         <div className="bg-white rounded-[3rem] shadow-[0_20px_80px_-15px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
-          {/* Section Header */}
           <div className="px-10 pt-12 pb-6 flex items-center justify-between border-b border-gray-50">
             <div className="flex items-center gap-3">
               <CheckSquare className="text-gray-400" size={20} />
@@ -72,7 +64,7 @@ export default function ProkerPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" // Custom title di handle di atas
+              title=""
               endpoint="/proker"
               fields={[
                 { 
@@ -109,7 +101,6 @@ export default function ProkerPage() {
         </div>
       </div>
 
-      {/* Professional Footer */}
       <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 px-10">
         <div className="flex items-center gap-3">
           <Briefcase size={16} className="text-gray-400" />

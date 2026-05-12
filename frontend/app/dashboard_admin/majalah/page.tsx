@@ -6,11 +6,7 @@ import { BookOpen, Newspaper, Star, Hash, DollarSign } from 'lucide-react';
 export default function MajalahPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-right-4 duration-1000 px-4 pb-20">
-      
-      {/* Header Editorial - Premium Magazine Vibes */}
       <div className="relative overflow-hidden bg-[#FDFDFD] rounded-[3rem] p-10 mb-12 border border-gray-200 shadow-xl">
-        
-        {/* Dekorasi Tekstur Majalah */}
         <div className="absolute top-0 right-0 w-64 h-full bg-[#EF6145] opacity-[0.03] skew-x-12 translate-x-20"></div>
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500 rounded-full blur-[120px] opacity-5"></div>
 
@@ -32,8 +28,6 @@ export default function MajalahPage() {
               Arsip publikasi dan distribusi majalah kreatif <span className="text-gray-900 font-bold">FSRD UNTAR</span>. Kelola setiap edisi dengan standar editorial tinggi.
             </p>
           </div>
-
-          {/* Issue Badge - Desain ala Cover Majalah */}
           <div className="relative group flex-shrink-0">
             <div className="absolute inset-0 bg-gray-900 rounded-2xl rotate-3 group-hover:rotate-6 transition-transform duration-500"></div>
             <div className="relative bg-white border-2 border-gray-900 p-6 rounded-2xl -rotate-3 group-hover:rotate-0 transition-transform duration-500 w-48 shadow-lg">
@@ -47,15 +41,12 @@ export default function MajalahPage() {
         </div>
       </div>
 
-      {/* Content Area - Minimalist Table/Form Container */}
       <div className="relative">
-        {/* Floating Page Number Effect */}
         <div className="absolute -left-12 top-0 hidden xl:block">
           <span className="text-8xl font-black text-gray-50 opacity-10 select-none">04</span>
         </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
-          {/* Sub-Header */}
           <div className="px-10 py-8 bg-gray-50/50 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-white shadow-sm rounded-xl text-[#EF6145]">
@@ -66,8 +57,7 @@ export default function MajalahPage() {
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Publication & Pricing Control</p>
               </div>
             </div>
-            
-            {/* Filter Pill - Just for UI deco */}
+
             <div className="flex gap-2">
               <span className="px-3 py-1 bg-gray-900 text-white text-[10px] font-bold rounded-full uppercase">All Editions</span>
             </div>
@@ -75,7 +65,7 @@ export default function MajalahPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" // Title dikosongkan karena sudah ada di sub-header custom
+              title="" 
               endpoint="/majalah"
               fields={[
                 { 
@@ -113,7 +103,6 @@ export default function MajalahPage() {
         </div>
       </div>
 
-      {/* Footer Editorial */}
       <div className="mt-16 border-t border-gray-100 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 opacity-60">
         <div className="flex items-center gap-4 text-[10px] font-bold tracking-[0.2em] text-gray-400">
           <Hash size={14} />

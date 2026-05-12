@@ -6,11 +6,7 @@ import { Palette, User, FileText, Image as ImageIcon, Search } from 'lucide-reac
 export default function KaryaPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-700 px-4 pb-20">
-      
-      {/* Header Eksklusif: Showcase Mode */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] rounded-[3rem] p-10 mb-10 text-white shadow-2xl border border-white/10">
-        
-        {/* Ornamen Artistik - Lingkaran Gradasi */}
         <div className="absolute top-[-50px] left-[-50px] w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-[-50px] right-[-50px] w-80 h-80 bg-[#EF6145]/20 rounded-full blur-[100px]"></div>
 
@@ -33,7 +29,6 @@ export default function KaryaPage() {
               </p>
             </div>
 
-            {/* Statistik Ringkas / Info Deco */}
             <div className="hidden lg:block">
                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
                  <div className="flex items-center gap-4">
@@ -49,13 +44,10 @@ export default function KaryaPage() {
         </div>
       </div>
 
-      {/* Main Form Container */}
       <div className="relative">
-        {/* Aksen Garis di Samping Card */}
         <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-32 bg-[#EF6145] rounded-full hidden xl:block"></div>
         
         <div className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden">
-          {/* Section Divider with Icon */}
           <div className="flex items-center gap-4 px-10 pt-10">
             <div className="p-3 bg-gray-50 rounded-2xl text-gray-400">
               <FileText size={20} />
@@ -102,7 +94,6 @@ export default function KaryaPage() {
         </div>
       </div>
 
-      {/* Bottom Decoration */}
       <div className="mt-16 text-center">
         <div className="inline-flex items-center gap-8 py-4 px-10 rounded-full bg-gray-50 border border-gray-100">
           <div className="flex -space-x-3">

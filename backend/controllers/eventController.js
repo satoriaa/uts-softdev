@@ -3,28 +3,23 @@ const User = require('../models/User');
 const Admin = require('../models/Admin');
 const mongoose = require('mongoose');
 
-// Helper function to convert NIM or ID to ObjectId
 const getPembicaraObjectId = async (identifier) => {
-  // Check if it's already a valid ObjectId
   if (mongoose.Types.ObjectId.isValid(identifier)) {
     return identifier;
   }
-  
-  // Try to find user by NIM
+
   const user = await User.findOne({ nim: identifier });
   if (user) {
     return user._id.toString();
   }
-  
-  // Try to find admin by email or name
+
   const admin = await Admin.findOne({ 
     $or: [{ email: identifier }, { nama: identifier }] 
   });
   if (admin) {
     return admin._id.toString();
   }
-  
-  // If not found, return the original (might fail validation but will give clear error)
+
   throw new Error(`User/Admin dengan NIM/Email/Nama "${identifier}" tidak ditemukan`);
 };
 
@@ -50,8 +45,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
-    
-    // Convert pembicara NIM/Email to ObjectId
+
     if (payload.pembicara) {
       try {
         payload.pembicara = await getPembicaraObjectId(payload.pembicara);
@@ -71,8 +65,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const payload = { ...req.body };
-    
-    // Convert pembicara NIM/Email to ObjectId
+
     if (payload.pembicara) {
       try {
         payload.pembicara = await getPembicaraObjectId(payload.pembicara);
@@ -100,16 +93,12 @@ exports.remove = async (req, res) => {
   }
 };
 
-// Get all speakers (users and admins) for dropdown selector
 exports.getSpeakers = async (req, res) => {
   try {
-    // Get all users
     const users = await User.find({}, '_id nama nim email role').lean();
     
-    // Get all admins
     const admins = await Admin.find({}, '_id nama email role').lean();
     
-    // Transform for frontend
     const speakers = [
       ...users.map(u => ({
         _id: u._id.toString(),

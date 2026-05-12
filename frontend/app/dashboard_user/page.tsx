@@ -112,7 +112,6 @@ const Reveal = ({
   )
 }
 
-// --- MAIN APPLICATION ---
 export default function UserHomePage() {
   const [loading, setLoading] = useState(true)
   const [activeMenu, setActiveMenu] = useState('Home')
@@ -181,7 +180,6 @@ export default function UserHomePage() {
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className="bg-noise fixed pointer-events-none" />
 
-      {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-xl border border-white/40 rounded-[32px] p-2 flex justify-between items-center z-50 lg:hidden shadow-xl">
         {menuItems.map((item) => {
           const Icon = item.icon
@@ -207,9 +205,7 @@ export default function UserHomePage() {
         })}
       </nav>
 
-      {/* Main Content (Padding adjusted: removed lg:pl-[320px]) */}
       <main className="w-full p-4 lg:p-8 pb-32 lg:pb-8">
-        {/* HERO SECTION */}
         <Reveal direction="scale">
           <section className="relative h-[85vh] w-full rounded-[40px] overflow-hidden group">
             <div
@@ -249,7 +245,6 @@ export default function UserHomePage() {
           </section>
         </Reveal>
 
-        {/* MARQUEE SECTION */}
         <section className="py-12 md:py-20 overflow-hidden relative border-b border-gray-200/50">
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#F5F3ED] to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#F5F3ED] to-transparent z-10" />
@@ -274,7 +269,6 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* KARYA TERBARU */}
         <section className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -316,7 +310,6 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* PROKER SECTION */}
         <section id="proker" className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -368,7 +361,6 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* FEATURES */}
         <section className="py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Reveal delay={100}>
@@ -421,7 +413,6 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* CTA SECTION */}
         <Reveal direction="scale" delay={200}>
           <section className="mt-12 bg-[#F05A37] rounded-[48px] p-12 md:p-24 text-center text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-50" />

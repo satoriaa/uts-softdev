@@ -6,11 +6,7 @@ import { Home, CheckCircle2, Clock, ShieldCheck, Map } from 'lucide-react';
 export default function PinjamanPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 px-4 pb-20">
-      
-      {/* Header Blueprint - Facility Management */}
       <div className="relative overflow-hidden bg-[#1e1e1e] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border border-white/5">
-        
-        {/* Background Pattern: Blueprint Grid */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
              style={{ 
                backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1px)`, 
@@ -37,7 +33,6 @@ export default function PinjamanPage() {
             </p>
           </div>
 
-          {/* Room Status Preview Cards */}
           <div className="flex gap-4">
             <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center w-32 relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
@@ -55,14 +50,11 @@ export default function PinjamanPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="relative">
-        {/* Aksen Teknis di Pojok Card */}
         <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 border-gray-200 rounded-tl-xl z-0"></div>
         <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 border-gray-200 rounded-br-xl z-0"></div>
 
         <div className="bg-white rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden relative z-10">
-          {/* Internal Navigation Bar */}
           <div className="px-10 py-6 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gray-900 rounded-lg">
@@ -77,7 +69,7 @@ export default function PinjamanPage() {
 
           <div className="p-6 md:p-10">
             <CrudPage
-              title="" // Judul sudah dihandle header custom
+              title="" 
               endpoint="/pinjaman"
               fields={[
                 { 
@@ -107,7 +99,6 @@ export default function PinjamanPage() {
         </div>
       </div>
 
-      {/* Safety Info Footer */}
       <div className="mt-12 bg-blue-50/50 border border-blue-100 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">

@@ -44,8 +44,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [user, router]);
 
   if (!token && !localStorage.getItem('token')) return null;
-
-  // Menu yang dikelompokkan agar lebih rapi
   const navigation = [
     {
       group: "Main",
@@ -82,15 +80,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-[#FDFDFB]">
-      {/* MOBILE OVERLAY */}
       {isMobileOpen && (
         <div className="fixed inset-0 bg-black/60 z-[60] lg:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsMobileOpen(false)} />
       )}
 
-      {/* SIDEBAR */}
       <aside className={`fixed inset-y-0 left-0 z-[70] bg-[#121212] text-white flex flex-col transition-all duration-500 ease-in-out lg:static shadow-2xl ${isMobileOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'} ${isSidebarOpen ? 'lg:w-72 p-6' : 'lg:w-24 p-4'}`}>
-        
-        {/* Logo Section */}
         <div className={`flex items-center mb-12 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen ? (
             <div className="flex items-center gap-3 animate-in fade-in duration-700">
@@ -105,8 +99,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
           <button onClick={() => setIsMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white"><X size={24} /></button>
         </div>
-
-        {/* Navigation Groups */}
         <nav className="flex flex-col gap-8 overflow-y-auto no-scrollbar pb-10">
           {navigation.map((group) => (
             <div key={group.group} className="flex flex-col gap-2">
@@ -133,7 +125,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
 
-        {/* Toggle Sidebar Button */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
           className="hidden lg:flex mt-auto items-center justify-center h-12 w-full bg-white/5 hover:bg-white/10 rounded-2xl text-gray-400 hover:text-white transition-all border border-white/5"
@@ -142,10 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        
-        {/* HEADER */}
         <header className="bg-white/70 backdrop-blur-xl px-6 lg:px-10 py-5 flex justify-between items-center sticky top-0 z-[40] border-b border-gray-100">
           <div className="flex items-center gap-6">
             <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2.5 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors"><Menu size={24} /></button>
@@ -158,15 +146,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           
           <div className="flex items-center gap-3 lg:gap-6">
-            {/* Quick Actions */}
             <div className="hidden sm:flex items-center gap-2 mr-2">
               <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"><Bell size={20}/></button>
               <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"><Settings size={20}/></button>
             </div>
 
             <div className="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
-
-            {/* Profile & Logout Group */}
             <div className="flex items-center gap-4 pl-2">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-black text-gray-900 leading-none mb-1">{user?.nama || 'Admin Central'}</div>
@@ -189,8 +174,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
         </header>
-
-        {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto no-scrollbar bg-[#FDFDFB] p-6 lg:p-10">
           <div className="max-w-7xl mx-auto">
             {children}

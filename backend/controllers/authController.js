@@ -101,13 +101,10 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// FUNGSI UNTUK MERESET PASSWORD
 exports.resetPassword = async (req, res) => {
   try {
-    // 1. Tangkap data yang dikirim dari Frontend (lupa.tsx)
     const { email, password, password_confirmation } = req.body;
 
-    // 2. Validasi Dasar
     if (!email || !password || !password_confirmation) {
       return res.status(400).json({ 
         message: 'Email, password baru, dan konfirmasi password harus diisi.' 
@@ -120,7 +117,6 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // 3. Cari user atau admin di database MongoDB berdasarkan Email
     let user = await User.findOne({ email: email });
     let admin = null;
 
@@ -128,15 +124,12 @@ exports.resetPassword = async (req, res) => {
       admin = await Admin.findOne({ email: email });
     }
 
-    // Jika email tidak ditemukan di database
     if (!user && !admin) {
       return res.status(404).json({ 
         message: 'Gagal mengubah password. Pastikan email benar dan terdaftar.' 
       });
     }
 
-    // 4. Timpa password lama dengan password baru (tanpa hashing manual)
-    // Model akan otomatis meng-enkripsinya saat save dipanggil.
     if (admin) {
       admin.password = password; 
       await admin.save();
@@ -145,7 +138,6 @@ exports.resetPassword = async (req, res) => {
       await user.save();
     }
 
-    // 5. Kirim respons sukses ke Frontend
     return res.status(200).json({ 
       message: 'Password berhasil diubah! Silakan login.' 
     });

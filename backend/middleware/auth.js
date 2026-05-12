@@ -10,7 +10,7 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       if (decoded.type === 'admin') {
         req.user = await Admin.findById(decoded.id).select('-password');
-        req.userType = 'admin'; // Store user type for debugging
+        req.userType = 'admin'; 
       } else {
         req.user = await User.findById(decoded.id).select('-password');
         req.userType = 'user';
@@ -29,11 +29,9 @@ const protect = async (req, res, next) => {
 };
 
 const authorizeAdmin = (req, res, next) => {
-  // Check if user type is admin (more explicit check)
   if (req.userType === 'admin' && req.user && req.user.role === 'admin') {
     return next();
   } else {
-    // Debug response
     console.log('Authorization failed:', {
       userType: req.userType,
       userRole: req.user?.role,

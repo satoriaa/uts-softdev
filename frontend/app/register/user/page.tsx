@@ -21,7 +21,6 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
-    // Animasi muncul delay 100ms
     const timer = setTimeout(() => setShowCharacter(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -48,8 +47,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex bg-[#FAFAFA] font-sans">
-      
-      {/* ================= LEFT SIDE (FORM) ================= */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
         <div className="w-full max-w-[420px]">
           
@@ -64,7 +61,6 @@ export default function RegisterPage() {
                 name="nama"
                 type="text"
                 placeholder="Nama lengkap Anda"
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.nama}
                 onChange={handleChange}
@@ -78,7 +74,6 @@ export default function RegisterPage() {
                 name="nim"
                 type="text"
                 placeholder="21120001"
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.nim}
                 onChange={handleChange}
@@ -92,7 +87,6 @@ export default function RegisterPage() {
                 name="jurusan" 
                 value={form.jurusan} 
                 onChange={handleChange} 
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] bg-white"
                 required
               >
@@ -110,7 +104,6 @@ export default function RegisterPage() {
                 name="email"
                 type="email"
                 placeholder="nama@student.university.ac.id"
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.email}
                 onChange={handleChange}
@@ -124,7 +117,6 @@ export default function RegisterPage() {
                 name="password"
                 type="password"
                 placeholder="Minimal 8 karakter"
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.password}
                 onChange={handleChange}
@@ -138,7 +130,6 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 type="password"
                 placeholder="Ulangi password"
-                // Menambahkan text-black
                 className="w-full p-3 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41]"
                 value={form.confirmPassword}
                 onChange={handleChange}
@@ -162,7 +153,6 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE (GAMBAR) ================= */}
       <div className="hidden md:flex w-1/2 bg-[#DDBEEF] flex-col items-center justify-between relative overflow-hidden pt-20">
         
         <div className="z-10 text-center px-10">
@@ -176,7 +166,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* CONTAINER KARAKTER (Animasi muncul dari bawah) */}
         <div 
           className={`relative w-full flex justify-center items-end mt-auto transition-transform duration-1000 ease-out transform ${
             showCharacter ? 'translate-y-0' : 'translate-y-full'

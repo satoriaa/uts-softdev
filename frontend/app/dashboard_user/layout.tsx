@@ -62,7 +62,6 @@ function NavItem({ item, isActive, isExpanded }: NavItemProps) {
           {item.name}
         </span>
       )}
-      {/* Active Indicator Pin */}
       {isActive && !isExpanded && (
         <div className="absolute right-0 h-1.5 w-1.5 rounded-full bg-white" />
       )}
@@ -115,7 +114,6 @@ export default function DashboardUserLayout({
 
   return (
     <div className="flex min-h-screen bg-[#FDFDFD] text-slate-900 antialiased">
-      {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
@@ -123,7 +121,6 @@ export default function DashboardUserLayout({
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-50 flex flex-col bg-[#1A1A1A] text-white transition-all duration-500 ease-in-out lg:static
@@ -164,7 +161,6 @@ export default function DashboardUserLayout({
           ))}
         </nav>
 
-        {/* Sidebar Toggle & Logout on Bottom */}
         <div className="mt-auto flex flex-col gap-2">
            <button
             onClick={() => setIsSidebarExpanded((prev) => !prev)}
@@ -175,7 +171,6 @@ export default function DashboardUserLayout({
         </div>
       </aside>
 
-      {/* Content Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 px-6 backdrop-blur-xl lg:px-10">
           <div className="flex items-center gap-4">
@@ -193,7 +188,6 @@ export default function DashboardUserLayout({
           </div>
 
           <div className="flex items-center gap-2 lg:gap-5">
-            {/* Notification placeholder */}
             <button className="relative rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-[#EF6145]">
               <Bell size={20} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#EF6145] border-2 border-white" />
@@ -201,7 +195,6 @@ export default function DashboardUserLayout({
 
             <div className="h-6 w-[1px] bg-gray-100 mx-1" />
 
-            {/* Profile & Logout Group */}
             <div className="flex items-center gap-4">
               <div className="hidden flex-col items-end sm:flex">
                 <p className="text-xs font-bold text-gray-900 leading-none">
@@ -209,14 +202,11 @@ export default function DashboardUserLayout({
                 </p>
                 <span className="text-[10px] font-medium text-gray-400 mt-1 uppercase">FTI UNTAR</span>
               </div>
-              
-              {/* Avatar Dropdown (Simple) */}
+
               <div className="group relative">
                 <div className="flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#EF6145]/10 text-[#EF6145] transition-all hover:ring-4 hover:ring-[#EF6145]/10">
                   <User size={18} />
                 </div>
-                
-                {/* Minimal Logout Tooltip/Button */}
                 <button 
                   onClick={handleLogout}
                   className="absolute right-0 top-12 flex w-32 items-center gap-2 rounded-lg bg-white p-2 text-xs font-bold text-gray-500 opacity-0 shadow-xl ring-1 ring-black/5 transition-all group-hover:top-11 group-hover:opacity-100 hover:text-red-500"

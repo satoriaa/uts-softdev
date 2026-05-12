@@ -6,11 +6,7 @@ import { Layout, DoorOpen, Layers, CheckCircle, Info } from 'lucide-react';
 export default function RuangPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4 pb-20">
-      
-      {/* Header Facility - Campus Blueprint Style */}
       <div className="relative overflow-hidden bg-[#222222] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl">
-        
-        {/* Dekorasi Garis-Garis Arsitektur */}
         <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
           <div className="absolute top-10 right-10 w-40 h-40 border-2 border-white rounded-full"></div>
           <div className="absolute top-20 right-20 w-40 h-40 border-2 border-white rounded-full"></div>
@@ -36,7 +32,6 @@ export default function RuangPage() {
             </p>
           </div>
 
-          {/* Quick Floor Status */}
           <div className="flex gap-2">
              <div className="bg-white text-black p-5 rounded-3xl min-w-[100px] flex flex-col items-center">
                 <Layers className="mb-2" size={20} />
@@ -47,13 +42,9 @@ export default function RuangPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="relative">
-        {/* Decorative Grid Line */}
         <div className="absolute -top-6 right-10 h-12 w-[1px] bg-gray-200"></div>
-
         <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-          {/* Section Header */}
           <div className="px-10 py-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-white rounded-2xl shadow-sm">
@@ -73,7 +64,7 @@ export default function RuangPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" // Dikosongkan karena sudah ada header custom
+              title="" 
               endpoint="/ruang"
               fields={[
                 {
@@ -106,7 +97,6 @@ export default function RuangPage() {
         </div>
       </div>
 
-      {/* Guidelines / Info Section */}
       <div className="mt-8 flex items-start gap-4 px-8 py-6 bg-[#EF6145]/5 rounded-3xl border border-[#EF6145]/10">
         <Info className="text-[#EF6145] shrink-0" size={20} />
         <div>

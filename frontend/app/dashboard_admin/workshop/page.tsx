@@ -6,15 +6,9 @@ import { PenTool, Brush, Lightbulb, Users, Shapes } from 'lucide-react';
 export default function WorkshopPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 px-4 pb-20">
-      
-      {/* Header Craftsmanship - Creative Studio Vibes */}
       <div className="relative overflow-hidden bg-[#2A2A2A] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border-l-[12px] border-[#EF6145]">
-        
-        {/* Dekorasi Artistik - Abstract Shapes & Gradients */}
         <div className="absolute top-[-30px] right-[-30px] w-72 h-72 bg-[#EF6145] rounded-full blur-[90px] opacity-20 animate-pulse"></div>
         <div className="absolute bottom-[-20px] left-[30%] w-48 h-48 bg-yellow-500 rounded-full blur-[70px] opacity-10"></div>
-        
-        {/* Decorative SVG Paint Splatter (Hint of FSRD Art) */}
         <div className="absolute right-10 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none hidden lg:block">
             <Shapes size={200} strokeWidth={1} />
         </div>
@@ -40,7 +34,6 @@ export default function WorkshopPage() {
             </p>
           </div>
 
-          {/* Workshop Quick Stats / Badges */}
           <div className="flex flex-col gap-4">
              <div className="bg-white/5 backdrop-blur-xl p-5 rounded-[2rem] border border-white/10 flex items-center gap-4 group hover:bg-[#EF6145] transition-all duration-500 cursor-default">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20">
@@ -64,15 +57,10 @@ export default function WorkshopPage() {
           </div>
         </div>
       </div>
-
-      {/* Main CRUD Area */}
       <div className="relative group">
-        {/* Glow effect halus di sekitar card */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#EF6145] to-yellow-500 rounded-[3rem] blur opacity-5 group-hover:opacity-10 transition duration-1000"></div>
         
         <div className="relative bg-white rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden transition-all duration-500">
-          
-          {/* Form Top Navigation Bar */}
           <div className="px-10 py-8 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-2 h-10 bg-[#EF6145] rounded-full"></div>
@@ -86,7 +74,7 @@ export default function WorkshopPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" // Title sudah dihandle di header custom
+              title="" 
               endpoint="/workshop"
               fields={[
                 { 
@@ -122,8 +110,6 @@ export default function WorkshopPage() {
           </div>
         </div>
       </div>
-
-      {/* Footer / Creative Inspiration */}
       <div className="mt-12 text-center space-y-4">
         <div className="flex items-center justify-center gap-4">
            <div className="h-[1px] w-12 bg-gray-200"></div>

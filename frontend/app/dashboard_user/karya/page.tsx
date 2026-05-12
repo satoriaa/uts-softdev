@@ -157,7 +157,6 @@ export default function DashboardKaryaPage() {
           <p className="text-gray-500 mt-3 text-xl">Kelola dan tampilkan karya mahasiswa.</p>
         </div>
 
-        {/* HERO FILTER */}
         <Reveal direction="scale" delay={100}>
           <section className="relative h-[60vh] w-full rounded-[40px] overflow-hidden group mb-10">
             <div
@@ -203,8 +202,6 @@ export default function DashboardKaryaPage() {
             </div>
           </section>
         </Reveal>
-
-        {/* GRID */}
         <section className="py-4">
           {loading ? (
             <div className="text-gray-500 text-center py-20">Memuat karya...</div>

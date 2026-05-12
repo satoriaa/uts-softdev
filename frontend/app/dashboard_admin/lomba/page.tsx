@@ -6,11 +6,8 @@ import { Trophy, Target, Flag, Rocket, Award } from 'lucide-react';
 export default function LombaPage() {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-top-4 duration-1000 px-4 pb-20">
-      
-      {/* Header Prestigius - Competition Arena */}
+
       <div className="relative overflow-hidden bg-[#0F172A] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border-b-4 border-[#EF6145]">
-        
-        {/* Dekorasi Dinamis - Racing Lines */}
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
           <div className="absolute rotate-45 bg-white w-[1px] h-[1000px] right-20 -top-20"></div>
           <div className="absolute rotate-45 bg-white w-[1px] h-[1000px] right-40 -top-20"></div>
@@ -37,8 +34,6 @@ export default function LombaPage() {
               Kelola kompetisi desain, sayembara arsitektur, dan ajang talenta kreatif <span className="text-[#EF6145]">FSRD UNTAR</span> dalam satu sistem terintegrasi.
             </p>
           </div>
-
-          {/* Quick Info Badges */}
           <div className="flex flex-wrap gap-4">
              <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[120px]">
                 <Target className="text-blue-400 mb-1" size={20} />
@@ -54,15 +49,12 @@ export default function LombaPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="relative group">
-        {/* Decorative Floating Icon */}
         <div className="absolute -top-6 -right-6 w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform duration-500 z-20 border border-gray-100">
           <Rocket className="text-[#EF6145]" size={32} />
         </div>
 
         <div className="bg-white rounded-[3rem] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
-          {/* Section Header */}
           <div className="bg-gray-50/50 px-10 py-6 border-b border-gray-100 flex items-center gap-4">
             <Flag className="text-gray-400" size={20} />
             <h2 className="text-sm font-black uppercase tracking-[0.3em] text-gray-500">
@@ -109,7 +101,6 @@ export default function LombaPage() {
         </div>
       </div>
 
-      {/* Motivational Footer */}
       <div className="mt-16 flex flex-col items-center">
         <div className="flex items-center gap-4 mb-4">
           <div className="h-[2px] w-12 bg-[#EF6145]"></div>

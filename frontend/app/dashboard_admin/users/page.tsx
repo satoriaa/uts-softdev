@@ -26,7 +26,7 @@ export default function UsersPage() {
         {
           cloudName: 'dfyaergf4',
           uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'my_preset',
-          theme: 'minimal', // Tema widget lebih clean
+          theme: 'minimal', 
           colors: { action: '#EF6145' }
         },
         (error: any, result: any) => {
@@ -46,11 +46,7 @@ export default function UsersPage() {
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-top-4 duration-1000 px-4 pb-20">
-      
-      {/* Header Identity - Central Database Style */}
       <div className="relative overflow-hidden bg-[#111111] rounded-[2.5rem] p-10 mb-12 text-white shadow-2xl border-b-8 border-blue-600">
-        
-        {/* Abstract Security Mesh */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
              style={{ backgroundImage: `radial-gradient(#fff 1px, transparent 0)`, backgroundSize: '24px 24px' }}>
         </div>
@@ -75,7 +71,6 @@ export default function UsersPage() {
             </p>
           </div>
 
-          {/* User Status Summary */}
           <div className="flex flex-col gap-3 w-full md:w-auto">
              <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-4">
                 <Fingerprint className="text-[#EF6145]" size={24} />
@@ -84,8 +79,7 @@ export default function UsersPage() {
                   <div className="text-sm font-bold">Encrypted Database</div>
                 </div>
              </div>
-             
-             {/* Cloudinary Integrated Button */}
+
              <button
                 id="cloudinary-widget-button"
                 type="button"
@@ -98,10 +92,8 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Main Form Area */}
       <div className="relative">
         <div className="bg-white rounded-[3rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
-          {/* Internal Header */}
           <div className="px-10 py-8 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white shadow-sm rounded-2xl flex items-center justify-center">
@@ -124,7 +116,7 @@ export default function UsersPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" // Handle via custom header
+              title="" 
               endpoint="/users"
               fields={[
                 { name: 'nama', label: 'Nama Lengkap', required: true },
@@ -146,7 +138,6 @@ export default function UsersPage() {
                 },
               ]}
             />
-            {/* Hidden field untuk menampung URL Cloudinary */}
             <input type="hidden" id="cloudinary-gambar-url" name="gambar_url" />
             
             <p className="mt-6 text-[10px] text-gray-400 text-center font-medium italic">
@@ -155,8 +146,6 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
-
-      {/* Security Footer */}
       <div className="mt-12 flex flex-col items-center gap-4 opacity-50">
         <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
         <p className="text-[9px] font-black uppercase tracking-[0.5em] text-gray-500">
