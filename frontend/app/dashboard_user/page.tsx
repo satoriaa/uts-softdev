@@ -113,19 +113,12 @@ const Reveal = ({
 }
 
 export default function UserHomePage() {
-  const [loading, setLoading] = useState(true)
   const [activeMenu, setActiveMenu] = useState('Home')
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800)
-    return () => clearTimeout(timer)
-  }, [])
 
   const menuItems = useMemo(
     () => [
       { name: 'Home', icon: Home, href: '/user-home' },
       { name: 'Showcase', icon: ImageIcon, href: '/dashboard_user/showcase' },
-
       { name: 'Pinjam Ruangan', icon: Archive, href: '/dashboard_user/pinjaman-ruangan' },
       { name: 'Proker', icon: Calendar, href: '/dashboard_user/proker' },
       { name: 'Event', icon: Calendar, href: '/dashboard_user/event' },
@@ -134,52 +127,12 @@ export default function UserHomePage() {
     []
   )
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-[#F05A37] z-[100] flex flex-col items-center justify-center overflow-hidden">
-        <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-        <div className="absolute inset-0 bg-noise opacity-10"></div>
-
-        <div className="relative z-10 text-center flex flex-col items-center">
-          <div className="overflow-hidden mb-4">
-            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight animate-[slideUp_1s_ease-out_forwards]">
-              CENTRAL
-            </h1>
-          </div>
-          <div className="overflow-hidden">
-            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight opacity-0 animate-[slideUp_1s_ease-out_0.2s_forwards]">
-              CREATIVE HUB
-            </h1>
-          </div>
-          <div className="mt-8 w-48 h-1 bg-white/30 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full animate-[loadingBar_2s_ease-in-out_forwards]"></div>
-          </div>
-        </div>
-
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              @keyframes slideUp {
-                from { transform: translateY(100%); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-              }
-              @keyframes loadingBar {
-                0% { width: 0%; }
-                50% { width: 70%; }
-                100% { width: 100%; }
-              }
-            `,
-          }}
-        />
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen relative selection:bg-[#F05A37] selection:text-white">
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className="bg-noise fixed pointer-events-none" />
 
+      {/* MOBILE NAVIGATION */}
       <nav className="fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-xl border border-white/40 rounded-[32px] p-2 flex justify-between items-center z-50 lg:hidden shadow-xl">
         {menuItems.map((item) => {
           const Icon = item.icon
@@ -206,6 +159,7 @@ export default function UserHomePage() {
       </nav>
 
       <main className="w-full p-4 lg:p-8 pb-32 lg:pb-8">
+        {/* HERO SECTION */}
         <Reveal direction="scale">
           <section className="relative h-[85vh] w-full rounded-[40px] overflow-hidden group">
             <div
@@ -245,6 +199,7 @@ export default function UserHomePage() {
           </section>
         </Reveal>
 
+        {/* MARQUEE SECTION */}
         <section className="py-12 md:py-20 overflow-hidden relative border-b border-gray-200/50">
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#F5F3ED] to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#F5F3ED] to-transparent z-10" />
@@ -269,6 +224,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* KARYA TERBARU */}
         <section className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -310,6 +266,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* PROKER */}
         <section id="proker" className="py-16 md:py-24">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
@@ -361,6 +318,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* FEATURES CARDS */}
         <section className="py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Reveal delay={100}>
@@ -413,6 +371,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
+        {/* CTA SECTION */}
         <Reveal direction="scale" delay={200}>
           <section className="mt-12 bg-[#F05A37] rounded-[48px] p-12 md:p-24 text-center text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-50" />
@@ -422,7 +381,7 @@ export default function UserHomePage() {
             <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
               <TrendingUp size={64} strokeWidth={1} className="mb-8 opacity-80" />
               <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-tight">
-                Mulai Showcase Karyamu
+                Mulailah Showcase Karyamu
               </h2>
               <p className="text-lg md:text-xl font-medium text-white/80 mb-12">
                 Bergabung dengan ratusan mahasiswa FSRD yang sudah membagikan karya mereka ke dunia.
@@ -434,6 +393,7 @@ export default function UserHomePage() {
           </section>
         </Reveal>
 
+        {/* FOOTER */}
         <footer className="mt-24 pt-16 border-t border-gray-200/60 text-gray-600">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             <div>

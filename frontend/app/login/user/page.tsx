@@ -11,13 +11,22 @@ export default function LoginPage() {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [showCharacter, setShowCharacter] = useState(false); 
+  const [loading, setLoading] = useState(true); // State untuk Splash Screen
   
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowCharacter(true), 100);
-    return () => clearTimeout(timer); 
+    // Timer untuk Splash Screen (1.8 detik)
+    const splashTimer = setTimeout(() => setLoading(false), 1800);
+    
+    // Timer untuk animasi karakter (muncul setelah splash selesai)
+    const charTimer = setTimeout(() => setShowCharacter(true), 2000);
+
+    return () => {
+      clearTimeout(splashTimer);
+      clearTimeout(charTimer);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,15 +39,51 @@ export default function LoginPage() {
       }
       setAuth(res.data.data, res.data.token); 
       router.push('/dashboard_user'); 
-
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login gagal'); 
     }
   };
 
+  // --- RENDER SPLASH SCREEN ---
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-[#F05A37] z-[100] flex flex-col items-center justify-center overflow-hidden">
+        <div className="relative z-10 text-center flex flex-col items-center">
+          <div className="overflow-hidden mb-4">
+            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight animate-[slideUp_1s_ease-out_forwards]">
+              CENTRAL
+            </h1>
+          </div>
+          <div className="overflow-hidden">
+            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight opacity-0 animate-[slideUp_1s_ease-out_0.2s_forwards]">
+              CREATIVE HUB
+            </h1>
+          </div>
+          <div className="mt-8 w-48 h-1 bg-white/30 rounded-full overflow-hidden">
+            <div className="h-full bg-white rounded-full animate-[loadingBar_2s_ease-in-out_forwards]"></div>
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes slideUp {
+              from { transform: translateY(100%); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes loadingBar {
+              0% { width: 0%; }
+              50% { width: 70%; }
+              100% { width: 100%; }
+            }
+          `
+        }} />
+      </div>
+    );
+  }
+
+  // --- RENDER HALAMAN LOGIN ---
   return (
     <div className="min-h-screen flex bg-[#FAFAFA] font-sans relative">
-
       <Link 
         href="/login/admin"
         className="absolute top-0 left-0 z-50 w-20 h-20 opacity-0 cursor-default"
@@ -48,7 +93,6 @@ export default function LoginPage() {
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-[420px]">
-          
           <h1 className="text-4xl font-bold mb-3 text-black">
             Selamat Datang Kembali
           </h1>
@@ -57,11 +101,8 @@ export default function LoginPage() {
           </p>
 
           <form onSubmit={handleSubmit}>
-
             <div className="mb-5">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email" 
                 placeholder="Masukkan email"
@@ -73,9 +114,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-2">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 placeholder="Masukkan password"
@@ -97,7 +136,8 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-[#E85C41] text-white font-semibold p-3.5 rounded-lg hover:bg-[#D44A30] transition-colors">
+              className="w-full bg-[#E85C41] text-white font-semibold p-3.5 rounded-lg hover:bg-[#D44A30] transition-colors"
+            >
               Masuk
             </button>
 
@@ -107,13 +147,11 @@ export default function LoginPage() {
                 Daftar sekarang
               </Link>
             </p>
-
           </form>
         </div>
       </div>
 
       <div className="hidden md:flex w-1/2 bg-[#DDBEEF] flex-col items-center justify-between relative overflow-hidden pt-20">
-
         <div className="z-10 text-center px-10">
           <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-md tracking-wide">
             Central Creative Hub
@@ -139,9 +177,7 @@ export default function LoginPage() {
             priority
           />
         </div>
-
       </div>
-
     </div>
   );
 }
