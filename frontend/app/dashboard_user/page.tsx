@@ -111,7 +111,7 @@ export default function UserHomePage() {
           <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-20">
             <Reveal direction="scale">
               <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold tracking-widest uppercase mb-6">
-                Creative Hub Hub Ecosystem
+                Creative Hub Ecosystem
               </span>
               <h1 className="text-white text-6xl md:text-8xl lg:text-[10rem] font-black tracking-[-0.05em] leading-[0.85] mb-8">
                 Design <br /> <span className="text-[#F05A37] font-serif-italic">Matters.</span>
