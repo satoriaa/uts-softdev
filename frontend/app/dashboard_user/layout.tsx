@@ -22,7 +22,7 @@ import { useAuthStore } from '@/store/authStore'
 const MENU_ITEMS = [
   { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
   { name: 'Showcase', href: '/dashboard_user/showcase', icon: ImageIcon },
-  { name: 'Inventaris', href: '/dashboard_user/inventaris', icon: Box },
+  { name: 'Ruangan', href: '/dashboard_user/Ruangan', icon: Box },
   { name: 'Event', href: '/dashboard_user/event', icon: Calendar },
   { name: 'Profil', href: '/dashboard_user/profil', icon: User },
 ] as const
