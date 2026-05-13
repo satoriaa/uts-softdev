@@ -4,24 +4,23 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import Image from 'next/image'; 
 import Link from 'next/link'; 
+import { Eye, EyeOff } from 'lucide-react'; // icon mata
 import api from '@/lib/axios'; 
 import { useAuthStore } from '@/store/authStore'; 
 
 export default function LoginPage() {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // 👁️ toggle password
   const [showCharacter, setShowCharacter] = useState(false); 
-  const [loading, setLoading] = useState(true); // State untuk Splash Screen
+  const [loading, setLoading] = useState(true); 
   
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   useEffect(() => {
-    // Timer untuk Splash Screen (1.8 detik)
-    const splashTimer = setTimeout(() => setLoading(false), 1800);
-    
-    // Timer untuk animasi karakter (muncul setelah splash selesai)
-    const charTimer = setTimeout(() => setShowCharacter(true), 2000);
+    const splashTimer = setTimeout(() => setLoading(false), 1800); // splash
+    const charTimer = setTimeout(() => setShowCharacter(true), 2000); // animasi karakter
 
     return () => {
       clearTimeout(splashTimer);
@@ -33,18 +32,21 @@ export default function LoginPage() {
     e.preventDefault(); 
     try {
       const res = await api.post('/auth/login', { email, password }); 
+      
       if (res.data.data?.role === 'admin') {
         alert('Email admin tidak dapat masuk di halaman user. Silakan gunakan halaman Login Admin.');
         return;
       }
+
       setAuth(res.data.data, res.data.token); 
       router.push('/dashboard_user'); 
+
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login gagal'); 
     }
   };
 
-  // --- RENDER SPLASH SCREEN ---
+  // ================= SPLASH SCREEN =================
   if (loading) {
     return (
       <div className="fixed inset-0 bg-[#F05A37] z-[100] flex flex-col items-center justify-center overflow-hidden">
@@ -81,28 +83,37 @@ export default function LoginPage() {
     );
   }
 
-  // --- RENDER HALAMAN LOGIN ---
+  // ================= LOGIN PAGE =================
   return (
     <div className="min-h-screen flex bg-[#FAFAFA] font-sans relative">
+
+      {/* hidden admin access */}
       <Link 
         href="/login/admin"
         className="absolute top-0 left-0 z-50 w-20 h-20 opacity-0 cursor-default"
       >
-        Login Admin &rarr;
+        Login Admin →
       </Link>
 
+      {/* LEFT FORM */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-[420px]">
+
           <h1 className="text-4xl font-bold mb-3 text-black">
             Selamat Datang Kembali
           </h1>
+
           <p className="text-gray-600 mb-10 text-[15px]">
             Masuk ke akun Central Creative Hub Anda
           </p>
 
           <form onSubmit={handleSubmit}>
+
+            {/* EMAIL */}
             <div className="mb-5">
-              <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email" 
                 placeholder="Masukkan email"
@@ -113,27 +124,44 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* PASSWORD + SHOW */}
             <div className="mb-2">
-              <label className="block mb-2 text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                placeholder="Masukkan password"
-                className="w-full p-3.5 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] transition-colors"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)} 
-                required
-              />
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'} // toggle
+                  placeholder="Masukkan password"
+                  className="w-full p-3.5 pr-12 rounded-lg border border-gray-200 text-black focus:outline-none focus:border-[#E85C41] focus:ring-1 focus:ring-[#E85C41] transition-colors"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required
+                />
+
+                {/* ICON MATA */}
+                <button
+                  type="button" // biar ga submit form
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#E85C41] transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
+            {/* LUPA PASSWORD */}
             <div className="text-right mb-8">
               <Link 
                 href="/login/user/lupa" 
-                className="text-xs text-[#E85C41] hover:underline cursor-pointer font-medium"
+                className="text-xs text-[#E85C41] hover:underline font-medium"
               >
                 Lupa password?
               </Link>
             </div>
 
+            {/* BUTTON */}
             <button
               type="submit"
               className="w-full bg-[#E85C41] text-white font-semibold p-3.5 rounded-lg hover:bg-[#D44A30] transition-colors"
@@ -141,17 +169,21 @@ export default function LoginPage() {
               Masuk
             </button>
 
+            {/* REGISTER */}
             <p className="text-center text-sm mt-6 text-gray-600">
               Belum punya akun?{' '}
               <Link href="/register/user" className="text-[#E85C41] hover:underline font-medium">
                 Daftar sekarang
               </Link>
             </p>
+
           </form>
         </div>
       </div>
 
+      {/* RIGHT SIDE */}
       <div className="hidden md:flex w-1/2 bg-[#DDBEEF] flex-col items-center justify-between relative overflow-hidden pt-20">
+        
         <div className="z-10 text-center px-10">
           <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-md tracking-wide">
             Central Creative Hub
@@ -163,6 +195,7 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* CHARACTER */}
         <div 
           className={`relative w-full flex justify-center items-end mt-auto transition-transform duration-1000 ease-out transform ${
             showCharacter ? 'translate-y-0' : 'translate-y-full'
