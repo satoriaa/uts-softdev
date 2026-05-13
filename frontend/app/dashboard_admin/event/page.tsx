@@ -71,7 +71,7 @@ export default function EventPage() {
                 { name: 'ketentuan', label: 'Ketentuan Peserta', type: 'textarea', required: true },
                 { name: 'lokasi', label: 'Venue / Lokasi', required: true },
                 { name: 'tanggal', label: 'Waktu Pelaksanaan', type: 'date', required: true },
-                { name: 'pembicara', label: 'ID Penanggung Jawab', required: true },
+                { name: 'pembicara', label: 'ID Penanggung Jawab', required: false },
                 { name: 'gambar', label: 'Poster Event (Format .jpg/.png)', type: 'file', required: true },
               ]}
             />
