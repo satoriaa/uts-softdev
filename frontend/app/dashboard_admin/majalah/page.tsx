@@ -86,12 +86,6 @@ export default function MajalahPage() {
                   required: true 
                 },
                 { 
-                  name: 'harga', 
-                  label: 'Harga Satuan (IDR)', 
-                  type: 'number', 
-                  required: true 
-                },
-                { 
                   name: 'gambar', 
                   label: 'Cover Art (Portrait Format)', 
                   type: 'file', 

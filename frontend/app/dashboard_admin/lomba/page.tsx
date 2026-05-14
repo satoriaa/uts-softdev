@@ -86,7 +86,7 @@ export default function LombaPage() {
                 },
                 { 
                   name: 'tempat', 
-                  label: 'Lokasi (Offline / Online)', 
+                  label: 'Lokasi', 
                   required: true 
                 },
                 { 

@@ -5,7 +5,6 @@ const majalahSchema = new mongoose.Schema(
     nama: { type: String, required: true },
     deskripsi: { type: String, required: true },
     tanggal: { type: Date, required: true },
-    harga: { type: Number, required: true },
     gambar: { type: String },
   },
   { timestamps: true }
