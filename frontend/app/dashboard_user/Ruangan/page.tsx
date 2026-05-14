@@ -1,46 +1,84 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, MapPin, Users, Clock, ArrowRight, DoorOpen } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, Clock, DoorOpen, MapPin, Search, Users } from 'lucide-react';
+import api from '@/lib/axios';
 
-interface Room {
-  id: number;
+type BackendRuangStatus = 'pending' | 'tersedia' | 'tidak_tersedia';
+
+type BackendRuang = {
+  _id: string;
+  namaRuang: string;
+  lantai: number;
+  status: BackendRuangStatus;
+  gambar?: string;
+};
+
+type RoomUI = {
+  id: string;
   name: string;
-  capacity: number;
-  location: string;
-  status: 'Tersedia' | 'Dipakai';
+  capacityLabel: string;
+  locationLabel: string;
+  statusUI: 'Tersedia' | 'Dipakai' | 'Pending';
+  isAvailable: boolean;
   image: string;
-}
+  floor: number;
+};
 
 export default function PeminjamanRuanganPage() {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
+  const [rooms, setRooms] = useState<RoomUI[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const rooms: Room[] = [
-    {
-      id: 1,
-      name: "Ruang Meeting Utama",
-      capacity: 20,
-      location: "Lantai 2, Sayap Kanan",
-      status: "Tersedia",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop"
-    },
-    {
-      id: 2,
-      name: "Studio Kolaborasi",
-      capacity: 8,
-      location: "Lantai 1, Dekat Lobby",
-      status: "Dipakai",
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop"
-    },
-    {
-      id: 3,
-      name: "Aula Serbaguna",
-      capacity: 100,
-      location: "Gedung B, Lantai Dasar",
-      status: "Tersedia",
-      image: "https://images.unsplash.com/photo-1431540015161-0bf868a2d407?q=80&w=2070&auto=format&fit=crop"
+  useEffect(() => {
+    fetchRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function fetchRooms() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get('/ruang');
+      const data: BackendRuang[] = res.data?.data || [];
+
+      const mapped: RoomUI[] = data.map((r) => {
+        const statusUI: RoomUI['statusUI'] =
+          r.status === 'tersedia' ? 'Tersedia' : r.status === 'tidak_tersedia' ? 'Dipakai' : 'Pending';
+
+        return {
+          id: r._id,
+          name: r.namaRuang,
+          capacityLabel: '-',
+          locationLabel: `Lantai ${r.lantai}`,
+          statusUI,
+          isAvailable: r.status === 'tersedia',
+          image: r.gambar || '',
+          floor: r.lantai,
+        };
+      });
+
+      setRooms(mapped);
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || e.message || 'Gagal mengambil data ruangan';
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-  ];
+  }
+
+  const filteredRooms = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rooms;
+    return rooms.filter((r) => {
+      return (
+        r.name.toLowerCase().includes(q) ||
+        r.locationLabel.toLowerCase().includes(q) ||
+        r.statusUI.toLowerCase().includes(q)
+      );
+    });
+  }, [query, rooms]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -87,11 +125,11 @@ export default function PeminjamanRuanganPage() {
               
               <div className="absolute top-5 left-5">
                 <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md border ${
-                  room.status === 'Tersedia' 
+                  room.statusUI === 'Tersedia' 
                   ? 'bg-emerald-500/80 border-emerald-400 text-white' 
                   : 'bg-rose-500/80 border-rose-400 text-white'
                 }`}>
-                  {room.status}
+                  {room.statusUI}
                 </span>
               </div>
 
@@ -109,30 +147,30 @@ export default function PeminjamanRuanganPage() {
                   <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
                     <Users size={16} />
                   </div>
-                  <span className="text-sm font-bold text-gray-700">{room.capacity} Orang</span>
+                  <span className="text-sm font-bold text-gray-700">{room.capacityLabel} Orang</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-500">
                   <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
                     <MapPin size={16} />
                   </div>
-                  <span className="text-sm font-bold text-gray-700 truncate">Lantai {room.id}</span>
+                  <span className="text-sm font-bold text-gray-700 truncate">{room.locationLabel}</span>
                 </div>
               </div>
 
               <p className="text-xs text-gray-400 font-medium mb-6 flex items-center gap-2">
                 <DoorOpen size={14} />
-                {room.location}
+                {room.locationLabel}
               </p>
 
               <button 
-                disabled={room.status === 'Dipakai'}
+                disabled={room.statusUI === 'Dipakai'}
                 className={`w-full py-4 rounded-2xl font-black uppercase tracking-[2px] text-xs flex items-center justify-center gap-2 transition-all shadow-lg ${
-                  room.status === 'Tersedia'
+                  room.statusUI === 'Tersedia'
                   ? 'bg-[#EF6145] text-white shadow-[#EF6145]/20 hover:bg-[#d94e3d]'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
                 }`}
               >
-                {room.status === 'Tersedia' ? (
+                {room.statusUI === 'Tersedia' ? (
                   <>
                     Booking Sekarang
                     <ArrowRight size={16} />
