@@ -5,8 +5,9 @@ const prokerSchema = new mongoose.Schema({
   deskripsi: { type: String, required: true },
   tanggal: { type: Date, required: true },
   tempat: { type: String, required: true },
+  // TAMBAHKAN FIELD GAMBAR DI BAWAH INI:
+  gambar: { type: String }, 
   pendaftar: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Proker', prokerSchema);
-

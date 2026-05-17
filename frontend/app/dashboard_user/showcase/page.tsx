@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Heart, ExternalLink, LayoutGrid, Filter } from 'lucide-react';
+import { Search, Heart, ExternalLink, LayoutGrid, Filter, X, User } from 'lucide-react';
 
 interface Project {
   id: number;
@@ -12,11 +12,106 @@ interface Project {
   image: string;
 }
 
+// ==========================================
+// 🌟 KOMPONEN MODAL POPUP DETAIL KARYA
+// ==========================================
+function ProjectDetailModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+      {/* Backdrop Klik untuk Menutup */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      {/* Box Konten Modal */}
+      <div className="relative bg-white w-full max-w-3xl rounded-[3rem] overflow-hidden shadow-2xl border border-gray-50 max-h-[92vh] flex flex-col z-10 animate-scale-up">
+        
+        {/* Tombol Close Pojok Kanan Atas */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-5 right-5 p-2.5 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-black rounded-full shadow-md transition-all z-20 group"
+        >
+          <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+        </button>
+
+        {/* Layout Grid Gambar & Detail */}
+        <div className="grid grid-cols-1 md:grid-cols-12 flex-1 overflow-y-auto">
+          
+          {/* Sisi Kiri: Gambar Karya */}
+          <div className="md:col-span-7 bg-gray-900 relative min-h-[300px] md:min-h-[500px]">
+            <img 
+              src={project.image || 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070'} 
+              alt={project.title} 
+              className="w-full h-full object-cover" 
+            />
+            {/* Tag Deskripsi/Kategori di Atas Gambar */}
+            <div className="absolute bottom-5 left-5">
+              <span className="px-4 py-1.5 bg-[#EF6145] text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg">
+                {project.category}
+              </span>
+            </div>
+          </div>
+
+          {/* Sisi Kanan: Metadata & Informasi */}
+          <div className="md:col-span-5 p-8 flex flex-col justify-between bg-white">
+            <div className="space-y-6">
+              {/* Judul Karya */}
+              <div>
+                <h3 className="text-2xl font-black text-gray-900 leading-tight tracking-tight uppercase italic mb-2">
+                  {project.title}
+                </h3>
+                <div className="h-1 w-14 bg-[#EF6145] rounded-full"></div>
+              </div>
+
+              {/* Pembuat / Kreator */}
+              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="p-2 bg-white rounded-xl text-[#EF6145] shadow-sm">
+                  <User size={18} />
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Kreator Karya</h4>
+                  <p className="text-sm font-bold text-gray-800 mt-0.5">{project.creator}</p>
+                </div>
+              </div>
+
+              {/* Ringkasan Status Likes */}
+              <div className="flex items-center gap-3 px-1">
+                <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl text-[#EF6145]">
+                  <Heart size={16} className="fill-[#EF6145]" />
+                  <span className="font-black text-sm">{project.likes} Likes</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tombol Aksi Bawah */}
+            <div className="pt-8 mt-8 border-t border-gray-100 space-y-3">
+              <button className="w-full py-4 bg-gray-900 hover:bg-black text-white text-xs font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all">
+                Apresiasi Karya
+                <Heart size={14} />
+              </button>
+              
+              <button 
+                onClick={onClose}
+                className="w-full py-3.5 bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all"
+              >
+                Kembali ke Galeri
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 export default function ShowcasePage() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  
+  // 🎯 State untuk menyimpan data karya yang sedang dibuka pop up-nya
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // 🔎 Filter Project
   const filteredProjects = useMemo(() => {
@@ -99,7 +194,7 @@ export default function ShowcasePage() {
           </p>
         </div>
 
-        {/* SEARCH */}
+        {/* SEARCH & FILTER BUTTON */}
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <div className="relative group">
             <Search
@@ -123,34 +218,34 @@ export default function ShowcasePage() {
         </div>
       </div>
 
-      {/* GRID */}
+      {/* GRID KONTEN */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
         {/* LOADING */}
         {loading ? (
-          <div className="col-span-full text-center text-gray-500">
+          <div className="col-span-full text-center text-sm font-bold text-gray-400 uppercase tracking-widest animate-pulse py-12">
             Memuat data...
           </div>
 
         /* ERROR */
         ) : error ? (
-          <div className="col-span-full text-center text-rose-500">
+          <div className="col-span-full max-w-md mx-auto p-4 bg-rose-50 border border-rose-200 text-rose-700 font-bold rounded-2xl text-center text-sm">
             {error}
           </div>
 
         /* EMPTY */
         ) : filteredProjects.length === 0 ? (
-          <div className="col-span-full text-center text-gray-400">
-            Tidak ada karya
+          <div className="col-span-full text-center text-sm font-bold text-gray-400 uppercase tracking-widest py-12 border border-dashed rounded-[2.5rem]">
+            Tidak ada karya ditemukan
           </div>
 
-        /* SUCCESS */
+        /* SUCCESS RENDER DATA */
         ) : (
           <>
             {filteredProjects.map((project) => (
               <div key={project.id} className="group">
                 
-                {/* IMAGE */}
+                {/* IMAGE BOX */}
                 <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-gray-100 mb-4 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500">
                   <img
                     src={project.image}
@@ -158,7 +253,7 @@ export default function ShowcasePage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
 
-                  {/* OVERLAY */}
+                  {/* OVERLAY HOVER */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                     <div className="flex justify-between items-center text-white">
                       <div className="flex items-center gap-2">
@@ -168,23 +263,31 @@ export default function ShowcasePage() {
                         </span>
                       </div>
 
-                      <button className="p-3 bg-white/20 backdrop-blur-md rounded-xl hover:bg-[#EF6145]">
+                      {/* Tombol Buka Detail Popup via Icon */}
+                      <button 
+                        onClick={() => setSelectedProject(project)}
+                        className="p-3 bg-white/20 backdrop-blur-md rounded-xl hover:bg-[#EF6145] text-white transition-all"
+                      >
                         <ExternalLink size={18} />
                       </button>
                     </div>
                   </div>
 
-                  {/* CATEGORY */}
+                  {/* CATEGORY LABEL */}
                   <div className="absolute top-5 left-5">
-                    <span className="px-3 py-1 bg-white/90 text-[#EF6145] text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm">
+                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[#EF6145] text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm">
                       {project.category}
                     </span>
                   </div>
                 </div>
 
-                {/* INFO */}
+                {/* INFO TEXT */}
                 <div className="px-2">
-                  <h3 className="font-bold text-gray-900 line-clamp-1 group-hover:text-[#EF6145]">
+                  {/* Klik Judul juga memicu pembukaan popup */}
+                  <h3 
+                    onClick={() => setSelectedProject(project)}
+                    className="font-bold text-gray-900 line-clamp-1 group-hover:text-[#EF6145] cursor-pointer transition-colors"
+                  >
                     {project.title}
                   </h3>
 
@@ -195,10 +298,10 @@ export default function ShowcasePage() {
               </div>
             ))}
 
-            {/* UPLOAD CARD */}
+            {/* UPLOAD CARD PLACEHOLDER */}
             <div className="border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center bg-gray-50/30 hover:bg-gray-50 hover:border-[#EF6145]/30 transition-all group cursor-pointer aspect-[4/5]">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110">
-                <span className="text-3xl text-[#EF6145]">+</span>
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-3xl text-[#EF6145] font-light">+</span>
               </div>
 
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
@@ -212,6 +315,16 @@ export default function ShowcasePage() {
           </>
         )}
       </div>
+
+      {/* ==========================================
+          RENDER POPUP JIKA KARYA DIKLIK
+         ========================================== */}
+      {selectedProject && (
+        <ProjectDetailModal 
+          project={selectedProject} 
+          onClose={() => setSelectedProject(null)} 
+        />
+      )}
     </div>
   );
 }
