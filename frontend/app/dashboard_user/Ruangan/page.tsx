@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { debounce } from '@/lib/rateLimit';
+
 import { ArrowRight, Clock, DoorOpen, MapPin, Search, Users } from 'lucide-react';
 import api from '@/lib/axios';
 
@@ -27,6 +29,8 @@ type RoomUI = {
 
 export default function PeminjamanRuanganPage() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
   const [rooms, setRooms] = useState<RoomUI[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +72,14 @@ export default function PeminjamanRuanganPage() {
     }
   }
 
+  useEffect(() => {
+    const fn = debounce((val: string) => setDebouncedQuery(val), 300);
+    fn(query);
+  }, [query]);
+
   const filteredRooms = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
+
     if (!q) return rooms;
     return rooms.filter((r) => {
       return (
@@ -78,7 +88,8 @@ export default function PeminjamanRuanganPage() {
         r.statusUI.toLowerCase().includes(q)
       );
     });
-  }, [query, rooms]);
+  }, [debouncedQuery, rooms]);
+
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

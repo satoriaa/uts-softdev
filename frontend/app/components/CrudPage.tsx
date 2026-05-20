@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Search, Edit3, Trash2, Plus, RefreshCw, CheckCircle2, AlertCircle, X } from "lucide-react";
 import api from "@/lib/axios";
+import { debounce, throttle } from "@/lib/rateLimit";
+
 
 type Field = {
   name: string;
@@ -24,6 +26,8 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
   const [page, setPage] = useState(0);
   const pageSize = 10;
 
@@ -51,6 +55,13 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   useEffect(() => {
     fetchItems();
   }, [endpoint]);
+
+  useEffect(() => {
+    const fn = debounce((val: string) => setDebouncedQuery(val), 300);
+    fn(query);
+    return () => {};
+  }, [query]);
+
 
   async function fetchItems() {
     setLoading(true);
@@ -186,8 +197,9 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   }
 
   const filteredItems = items.filter((it) => {
-    if (!query) return true;
-    const q = query.toLowerCase();
+    if (!debouncedQuery) return true;
+    const q = debouncedQuery.toLowerCase();
+
     return fields.slice(0, 3).some((f) => String(it[f.name] ?? "").toLowerCase().includes(q));
   });
 
@@ -249,7 +261,8 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
             <span className="hidden sm:inline">Tambah</span>
           </button>
           <button
-            onClick={fetchItems}
+            onClick={throttle(() => fetchItems(), 1000)}
+
             disabled={loading}
             className="p-2.5 border border-gray-100 rounded-2xl text-gray-400 hover:bg-gray-50 transition active:rotate-180"
           >

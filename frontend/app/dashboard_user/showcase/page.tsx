@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search, Heart, ExternalLink, LayoutGrid, Filter, X, User } from 'lucide-react';
+import { debounce } from '@/lib/rateLimit';
+
 
 interface Project {
   id: number;
@@ -106,6 +108,8 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
 
 export default function ShowcasePage() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -113,10 +117,16 @@ export default function ShowcasePage() {
   // 🎯 State untuk menyimpan data karya yang sedang dibuka pop up-nya
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  useEffect(() => {
+    const fn = debounce((val: string) => setDebouncedQuery(val), 300);
+    fn(query);
+  }, [query]);
+
   // 🔎 Filter Project
   const filteredProjects = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     if (!q) return projects;
+
 
     return projects.filter((p) => {
       const creator = p.creator?.toLowerCase() ?? '';
@@ -129,7 +139,8 @@ export default function ShowcasePage() {
         category.includes(q)
       );
     });
-  }, [projects, query]);
+  }, [projects, debouncedQuery]);
+
 
   // 📡 Fetch Data
   useEffect(() => {
@@ -207,6 +218,7 @@ export default function ShowcasePage() {
               placeholder="Cari inspirasi..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+
               className="w-full md:w-72 pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-black font-bold focus:ring-4 focus:ring-[#EF6145]/10 outline-none shadow-sm placeholder:text-gray-300"
             />
           </div>
