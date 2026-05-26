@@ -5,7 +5,6 @@ import { Search, Edit3, Trash2, Plus, RefreshCw, CheckCircle2, AlertCircle, X } 
 import api from "@/lib/axios";
 import { debounce, throttle } from "@/lib/rateLimit";
 
-
 type Field = {
   name: string;
   label: string;
@@ -20,8 +19,21 @@ type CrudPageProps = {
   fields: Field[];
 };
 
+// Helper untuk memastikan gambar terbaca dari URL backend
+const getImageUrl = (imagePath?: string) => {
+  if (!imagePath) return 'https://placehold.co/100x100?text=No+Img';
+  if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) return imagePath;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  return `${baseUrl.replace(/\/$/, '')}/${imagePath.replace(/^\//, '')}`;
+};
+
 export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
-  const [items, setItems] = useState<any[]>([]);
+  type Item = {
+    _id: string;
+    [key: string]: any;
+  };
+  
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,13 +47,11 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   const [form, setForm] = useState<Record<string, any>>({});
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
 
-  // ✅ NOTIF STATE
   const [notif, setNotif] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
 
-  // Helper untuk memicu notifikasi
   const showNotif = (message: string, type: "success" | "error") => {
     setNotif({ message, type });
     setTimeout(() => setNotif(null), 3000);
@@ -54,6 +64,7 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
 
   useEffect(() => {
     fetchItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
   useEffect(() => {
@@ -61,7 +72,6 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
     fn(query);
     return () => {};
   }, [query]);
-
 
   async function fetchItems() {
     setLoading(true);
@@ -180,7 +190,6 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   }
 
   async function removeItem(id: string) {
-    // Menggunakan confirm bawaan oke, tapi feedback setelahnya pakai Toast
     if (!confirm("Hapus item ini?")) return;
 
     setLoading(true);
@@ -208,6 +217,12 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
   return (
     <div className="relative bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-5 md:p-7">
       
+      {error && (
+        <div className="hidden">
+          {error}
+        </div>
+      )}
+
       {/* ✅ MODERN TOAST NOTIFICATION */}
       <div className="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
         {notif && (
@@ -262,7 +277,6 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
           </button>
           <button
             onClick={throttle(() => fetchItems(), 1000)}
-
             disabled={loading}
             className="p-2.5 border border-gray-100 rounded-2xl text-gray-400 hover:bg-gray-50 transition active:rotate-180"
           >
@@ -317,8 +331,8 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
                     {(previewUrls[f.name] || (editing && editing[f.name])) && (
                       <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-white shadow-sm">
                         <img
-                          src={previewUrls[f.name] || editing[f.name]}
-                          className="w-full h-full object-cover"
+                          src={previewUrls[f.name] || getImageUrl(editing[f.name])}
+                          className="w-full h-full object-cover bg-gray-100"
                           alt="preview"
                         />
                       </div>
@@ -361,8 +375,12 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
                 <tr key={it._id} className="group hover:bg-gray-50/50 transition">
                   <td className="py-5">
                     <div className="flex items-center gap-4">
-                      {imageField && it[imageField.name] && (
-                        <img src={it[imageField.name]} className="w-12 h-12 rounded-xl object-cover shadow-sm" alt="item" />
+                      {imageField && (
+                        <img 
+                          src={getImageUrl(it[imageField.name])} 
+                          className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-100" 
+                          alt="item" 
+                        />
                       )}
                       <div>
                         <p className="font-bold text-gray-900 line-clamp-1">{it[fields[0].name]}</p>

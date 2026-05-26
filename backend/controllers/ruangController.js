@@ -21,23 +21,18 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    // Ambil data dari req.body (teks)
     const payload = { ...req.body };
     
-    // Konversi lantai ke Number karena FormData mengirimkan semuanya sebagai string
     if (payload.lantai) payload.lantai = Number(payload.lantai);
 
-    // Cek jika ada file yang diunggah (dari multer)
+    // Simpan URL Cloudinary (jangan path lokal)
     if (req.file) {
-      // Jika pakai Cloudinary: payload.gambar = req.file.path;
-      // Jika simpan lokal: payload.gambar = `/uploads/${req.file.filename}`;
-      payload.gambar = req.file.path || req.file.filename; 
+      payload.gambar = req.file.path || req.file.secure_url || req.file.filename;
     }
 
     const data = await Ruang.create(payload);
     res.status(201).json({ success: true, data });
   } catch (error) {
-    // Jika validasi mongoose gagal, errornya akan ditangkap di sini
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -47,9 +42,9 @@ exports.update = async (req, res) => {
     const payload = { ...req.body };
     if (payload.lantai) payload.lantai = Number(payload.lantai);
 
-    // Jika user mengupdate gambar baru
+    // Update URL Cloudinary (jangan path lokal)
     if (req.file) {
-      payload.gambar = req.file.path || req.file.filename;
+      payload.gambar = req.file.path || req.file.secure_url || req.file.filename;
     }
 
     const data = await Ruang.findByIdAndUpdate(req.params.id, payload, { 

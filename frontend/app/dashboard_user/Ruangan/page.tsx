@@ -27,6 +27,24 @@ type RoomUI = {
   floor: number;
 };
 
+// Helper untuk format URL Gambar
+const getImageUrl = (imagePath?: string) => {
+  // 1. Jika tidak ada gambar, tampilkan placeholder
+  if (!imagePath) return 'https://placehold.co/600x400?text=Ruangan+Tanpa+Gambar';
+  
+  // 2. Jika gambar sudah berupa URL penuh (Cloudinary/AWS) atau Base64, kembalikan apa adanya
+  if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) {
+    return imagePath;
+  }
+  
+  // 3. Jika berupa relative path dari multer lokal, gabungkan dengan URL Backend
+  // Pastikan menyesuaikan port backend kamu di sini (misalnya 5000 atau 8000)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  
+  // Menghindari double slash (misal: http://localhost:5000//uploads/gambar.jpg)
+  return `${baseUrl.replace(/\/$/, '')}/${imagePath.replace(/^\//, '')}`;
+};
+
 export default function PeminjamanRuanganPage() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -58,7 +76,7 @@ export default function PeminjamanRuanganPage() {
           locationLabel: `Lantai ${r.lantai}`,
           statusUI,
           isAvailable: r.status === 'tersedia',
-          image: r.gambar || '',
+          image: getImageUrl(r.gambar), // <- Perbaikan integrasi gambar di sini
           floor: r.lantai,
         };
       });
@@ -118,19 +136,27 @@ export default function PeminjamanRuanganPage() {
         </div>
       </div>
 
+      {/* Tampilkan Loading atau Error */}
+      {loading && <p className="text-gray-500 italic">Memuat data ruangan...</p>}
+      {error && <p className="text-rose-500 font-medium">Error: {error}</p>}
+
       {/* Room Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {rooms.map((room) => (
+        {!loading && !error && filteredRooms.map((room) => (
           <div 
             key={room.id}
             className="group bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:translate-y-[-6px] transition-all duration-500"
           >
             {/* Image Overlay */}
             <div className="relative h-56 overflow-hidden">
+              {/* Fallback internal jika URL valid namun gambar terhapus di server */}
               <img 
                 src={room.image} 
                 alt={room.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://placehold.co/600x400?text=Gambar+Rusak';
+                }}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 bg-gray-100"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               
@@ -195,12 +221,14 @@ export default function PeminjamanRuanganPage() {
         ))}
 
         {/* Placeholder Tambah */}
-        <div className="border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center opacity-50 hover:opacity-100 transition-opacity cursor-pointer bg-gray-50/30">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-             <Clock size={24} className="text-[#EF6145]" />
+        {!loading && (
+          <div className="border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center opacity-50 hover:opacity-100 transition-opacity cursor-pointer bg-gray-50/30">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+               <Clock size={24} className="text-[#EF6145]" />
+            </div>
+            <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Cek Jadwal Lain</span>
           </div>
-          <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Cek Jadwal Lain</span>
-        </div>
+        )}
       </div>
     </div>
   );

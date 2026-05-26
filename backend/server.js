@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const path = require('path'); 
 
 dotenv.config();
 connectDB();
@@ -11,6 +12,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Tambahan: Mengizinkan frontend mengakses folder uploads secara publik
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/admins', require('./routes/adminRoutes'));
