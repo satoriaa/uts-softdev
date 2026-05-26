@@ -30,6 +30,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Tambahkan state pengaman untuk memastikan komponen sudah terpasang di browser
+  const [isMounted, setIsMounted] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -38,12 +41,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   useEffect(() => {
+    // Tandai bahwa komponen sukses dimuat di sisi client (browser)
+    setIsMounted(true);
+
     if (user && user.role !== 'admin') {
       router.replace('/login/admin');
     }
   }, [user, router]);
 
-  if (!token && !localStorage.getItem('token')) return null;
+  const storedToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+  // Jika belum mounted (masih di proses server), jangan render apa-apa untuk mencegah tabrakan HTML
+  if (!isMounted) return null;
+
+  if (!token && !storedToken) return null;
 
   const navigation = [
     {

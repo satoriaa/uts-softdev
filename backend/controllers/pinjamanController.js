@@ -21,7 +21,11 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const data = await PinjamanRuang.create(req.body);
+    const payload = {
+      ...req.body,
+      user: req.user?._id,
+    };
+    const data = await PinjamanRuang.create(payload);
     res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

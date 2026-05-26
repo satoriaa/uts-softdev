@@ -1,5 +1,0 @@
-- [ ] Update `frontend/app/dashboard_user/event/page.tsx` untuk fetch data dari backend: `/event`, `/workshop`, `/lomba`, `/proker`
-- [ ] Peta field dari masing-masing sumber agar tampil di card yang sama (id/title/date/location/image/category)
-- [ ] Pastikan tab `Event/Workshop/Lomba/Proker` memfilter berdasarkan `category` dari data backend (tanpa deteksi keyword)
-- [ ] Uji build/lint sederhana (mis. `npm run lint` / `npm run build`) di frontend
-- [ ] Uji runtime sederhana dengan menjalankan project (jika tersedia)

@@ -7,7 +7,7 @@ const { getAllUsers, getUserById, createUser, updateUser, deleteUser } = require
 router.get('/', protect, authorizeAdmin, getAllUsers);
 router.get('/:id', protect, getUserById);
 router.post('/', protect, authorizeAdmin, upload.single('gambar'), createUser);
-router.put('/:id', protect, authorizeAdmin, upload.single('gambar'), updateUser);
+router.put('/:id', protect, upload.single('gambar'), updateUser);
 router.delete('/:id', protect, authorizeAdmin, deleteUser);
 
 module.exports = router;

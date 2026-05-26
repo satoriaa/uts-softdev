@@ -11,6 +11,9 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
+    if (req.userType === 'user' && req.user._id.toString() !== req.params.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to access this user' });
+    }
     const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user });
@@ -22,7 +25,7 @@ exports.getUserById = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const payload = { ...req.body };
-    if (req.file) payload.gambar = req.file.path;
+    if (req.file) payload.gambar = req.file.secure_url || req.file.path;
 
     const user = await User.create(payload);
     res.status(201).json({ success: true, data: user });
@@ -34,6 +37,10 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
+    if (req.userType === 'user' && req.user._id.toString() !== req.params.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update this profile' });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
@@ -43,9 +50,9 @@ exports.updateUser = async (req, res) => {
     if (jurusan) user.jurusan = jurusan;
     if (email) user.email = email;
     if (password) user.password = password;
-    if (role) user.role = role;
+    if (role && req.userType === 'admin') user.role = role;
 
-    if (req.file) user.gambar = req.file.path;
+    if (req.file) user.gambar = req.file.secure_url || req.file.path;
 
     await user.save();
     const updated = await User.findById(user._id).select('-password');

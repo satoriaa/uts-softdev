@@ -14,6 +14,7 @@ const toUserResponse = (user) => ({
   jurusan: user.jurusan,
   email: user.email,
   role: user.role,
+  gambar: user.gambar,
 });
 
 const toAdminResponse = (admin) => ({
@@ -95,6 +96,31 @@ exports.adminLogin = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
+    res.json({ success: true, data: req.user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateMe = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Not authorized' });
+    }
+
+    const { nama, nim, jurusan, email, password } = req.body;
+
+    if (typeof nama !== 'undefined') req.user.nama = nama;
+    if (typeof nim !== 'undefined' && req.user.nim !== undefined) req.user.nim = nim;
+    if (typeof jurusan !== 'undefined' && req.user.jurusan !== undefined) req.user.jurusan = jurusan;
+    if (typeof email !== 'undefined') req.user.email = email;
+    if (typeof password !== 'undefined' && password.trim() !== '') req.user.password = password;
+
+    if (req.file) {
+      req.user.gambar = req.file.secure_url || req.file.path;
+    }
+
+    await req.user.save();
     res.json({ success: true, data: req.user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
