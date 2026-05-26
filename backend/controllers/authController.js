@@ -121,7 +121,9 @@ exports.updateMe = async (req, res) => {
     }
 
     await req.user.save();
-    res.json({ success: true, data: req.user });
+    const user = await User.findById(req.user._id).select('-password');
+    const safe = (({ _id, nama, nim, jurusan, email, role, gambar }) => ({ _id, nama, nim, jurusan, email, role, gambar }))(user);
+    res.json({ success: true, data: safe });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

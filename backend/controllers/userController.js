@@ -28,7 +28,8 @@ exports.createUser = async (req, res) => {
     if (req.file) payload.gambar = req.file.secure_url || req.file.path;
 
     const user = await User.create(payload);
-    res.status(201).json({ success: true, data: user });
+    const safe = (({ _id, nama, nim, jurusan, email, role, gambar }) => ({ _id, nama, nim, jurusan, email, role, gambar }))(user);
+    res.status(201).json({ success: true, data: safe });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -56,7 +57,8 @@ exports.updateUser = async (req, res) => {
 
     await user.save();
     const updated = await User.findById(user._id).select('-password');
-    res.json({ success: true, data: updated });
+    const safe = (({ _id, nama, nim, jurusan, email, role, gambar }) => ({ _id, nama, nim, jurusan, email, role, gambar }))(updated);
+    res.json({ success: true, data: safe });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

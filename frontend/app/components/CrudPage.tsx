@@ -132,7 +132,21 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
       const val = form[field.name];
 
       if (field.type === "file") {
-        if (!val && !(editing && editing[field.name])) {
+        // File field is valid if:
+        // - a File is selected in the form state, OR
+        // - we're editing and an existing value exists on the item, OR
+        // - a Cloudinary widget wrote a hidden input with the secure_url.
+        let hasHidden = false;
+        try {
+          if (typeof document !== 'undefined') {
+            const hiddenInput = document.getElementById(`cloudinary-${field.name}-url`) as HTMLInputElement | null;
+            hasHidden = !!(hiddenInput && hiddenInput.value && String(hiddenInput.value).trim() !== '');
+          }
+        } catch (e) {
+          hasHidden = false;
+        }
+
+        if (!(form[field.name] instanceof File) && !(editing && editing[field.name]) && !hasHidden) {
           return `${field.label} wajib diisi`;
         }
       } else {
@@ -157,6 +171,7 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
       // (yang bisa berupa string secure_url di hidden input) tetap ikut terkirim.
       const fd = new FormData();
 
+      // Append all form values (File or primitive)
       Object.entries(form).forEach(([k, v]) => {
         if (v instanceof File) {
           fd.append(k, v);
@@ -164,6 +179,23 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
           fd.append(k, String(v));
         }
       });
+
+      // If using Cloudinary widget, it writes a hidden input with id `cloudinary-<field>-url`.
+      // If present and no File was selected for that field, include the secure URL so backend
+      // receives the image string and can store it.
+      if (imageField) {
+        try {
+          if (typeof document !== 'undefined') {
+            const hidden = document.getElementById(`cloudinary-${imageField.name}-url`) as HTMLInputElement | null;
+            const hasFileInForm = form[imageField.name] instanceof File;
+            if (hidden && hidden.value && !hasFileInForm) {
+              fd.append(imageField.name, hidden.value);
+            }
+          }
+        } catch (e) {
+          // ignore DOM access failures in non-browser contexts
+        }
+      }
 
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
