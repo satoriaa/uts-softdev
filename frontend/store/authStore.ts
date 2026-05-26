@@ -7,6 +7,7 @@ interface User {
   jurusan: string;
   email: string;
   role: string;
+  gambar?: string;
 }
 
 interface AuthState {

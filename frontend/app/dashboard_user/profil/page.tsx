@@ -32,7 +32,8 @@ export default function ProfilPage() {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
         method: 'PUT',
         body: formData,
         headers: {

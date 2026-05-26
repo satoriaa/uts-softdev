@@ -38,9 +38,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   useEffect(() => {
-    if (user && user.role !== 'admin') {
-      router.replace('/login/admin');
-    }
+    // Quick client-side check: if there's a stored token but it decodes to a non-admin type,
+    // redirect immediately. Otherwise, if token exists but user isn't populated, fetch /auth/me
+    // to populate the store and validate admin role. If not admin, redirect to admin login.
+    (async () => {
+      try {
+        if (typeof window !== 'undefined') {
+          const storedTok = localStorage.getItem('token');
+          if (storedTok) {
+            try {
+              const payload = JSON.parse(atob(storedTok.split('.')[1]));
+              if (payload && payload.type && payload.type !== 'admin') {
+                router.replace('/login/admin');
+                return;
+              }
+            } catch (e) {
+              // ignore malformed token
+            }
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (stored && !user) {
+          const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${stored}` },
+          });
+          if (res.ok) {
+            const json = await res.json();
+            // setAuth expects (user, token) but we only have setAuth in store via hook; use it if available
+            const setAuth = (useAuthStore.getState && useAuthStore.getState().setAuth) as any;
+            if (json?.data && setAuth) setAuth(json.data, stored);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      if (user && user.role !== 'admin') {
+        router.replace('/login/admin');
+      }
+    })();
   }, [user, router]);
 
   const hasStoredToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
