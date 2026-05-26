@@ -34,6 +34,7 @@ export default function UsersPage() {
             const secureUrl = result?.info?.secure_url;
             const hidden = document.getElementById('cloudinary-gambar-url') as HTMLInputElement | null;
             if (hidden) hidden.value = secureUrl || '';
+
             alert('Foto berhasil diunggah!');
           }
         }
@@ -138,7 +139,10 @@ export default function UsersPage() {
                 },
               ]}
             />
-            <input type="hidden" id="cloudinary-gambar-url" name="gambar_url" />
+            {/* dibuat agar CrudPage mengirim field bernama `gambar` ke backend */}
+            <input type="hidden" id="cloudinary-gambar-url" name="gambar" />
+            
+
             
             <p className="mt-6 text-[10px] text-gray-400 text-center font-medium italic">
               *Klik tombol "Upload Profile Picture" di atas terlebih dahulu jika ingin mengganti foto menggunakan Cloudinary.

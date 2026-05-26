@@ -153,21 +153,24 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
 
     setLoading(true);
     try {
-      const hasFile = fields.some((f) => f.type === "file" && form[f.name] instanceof File);
+      // Selalu gunakan multipart/form-data agar nilai gambar dari Cloudinary
+      // (yang bisa berupa string secure_url di hidden input) tetap ikut terkirim.
       const fd = new FormData();
+
       Object.entries(form).forEach(([k, v]) => {
         if (v instanceof File) {
           fd.append(k, v);
-        } else if (v !== undefined && v !== null) {
+        } else if (v !== undefined && v !== null && String(v).trim() !== "") {
           fd.append(k, String(v));
         }
       });
 
       const config = {
-        headers: { "Content-Type": hasFile ? "multipart/form-data" : "application/json" },
+        headers: { "Content-Type": "multipart/form-data" },
       };
 
-      const dataToSend = hasFile ? fd : form;
+      const dataToSend = fd;
+
 
       if (editing) {
         await api.put(`${endpoint}/${editing._id}`, dataToSend, config);
