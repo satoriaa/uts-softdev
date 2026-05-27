@@ -7,6 +7,13 @@ const path = require('path');
 dotenv.config();
 connectDB();
 
+if (!process.env.JWT_SECRET) {
+  console.error('Environment error: JWT_SECRET is not set. Create a backend/.env file with JWT_SECRET and JWT_EXPIRE (e.g. JWT_EXPIRE=30d)');
+  process.exit(1);
+}
+
+process.env.JWT_EXPIRE = process.env.JWT_EXPIRE || '30d';
+
 const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
