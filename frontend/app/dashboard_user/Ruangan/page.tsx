@@ -82,10 +82,12 @@ export default function PeminjamanRuanganPage() {
       });
 
       setRooms(mapped);
-    } catch (e: any) {
-      const msg = e?.response?.data?.message || e.message || 'Gagal mengambil data ruangan';
-      setError(msg);
-    } finally {
+    } catch (e) {
+  const errorWithResponse = e as { response?: { data?: { message?: string } }; message?: string };
+  const msg = errorWithResponse?.response?.data?.message || errorWithResponse.message || 'Gagal mengambil data ruangan';
+  setError(msg);
+    }
+    finally {
       setLoading(false);
     }
   }
@@ -224,7 +226,7 @@ export default function PeminjamanRuanganPage() {
         {!loading && (
           <div className="border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center opacity-50 hover:opacity-100 transition-opacity cursor-pointer bg-gray-50/30">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-               <Clock size={24} className="text-[#EF6145]" />
+              <Clock size={24} className="text-[#EF6145]" />
             </div>
             <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Cek Jadwal Lain</span>
           </div>
