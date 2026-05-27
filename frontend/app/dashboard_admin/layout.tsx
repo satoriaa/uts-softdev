@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import io, { Socket } from 'socket.io-client';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
-import { 
+import {
   User, 
   LayoutDashboard, 
   ImageIcon, 
@@ -20,8 +21,9 @@ import {
   Trophy,
   BookOpen,
   Settings,
-  Bell
+  
 } from 'lucide-react';
+import NotificationBell from '@/app/components/NotificationBell';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -30,6 +32,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const socketRef = useRef<Socket | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -84,8 +88,53 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     })();
   }, [user, router]);
 
-  const hasStoredToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (!token && !hasStoredToken) return null;
+  useEffect(() => {
+    // fetch pending pinjaman count for admin badge
+    let mounted = true;
+    (async () => {
+      try {
+        if (!user || user.role !== 'admin') return;
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!stored) return;
+        const res = await fetch(`${base.replace(/\/$/, '')}/api/pinjaman`, {
+          headers: { Authorization: `Bearer ${stored}` },
+        });
+        if (!mounted) return;
+        if (res.ok) {
+          const json = await res.json();
+          setPendingCount(json.data?.filter((p: any) => p.status === 'pending').length || 0);
+        }
+        // socket for live pending updates
+        try {
+          if (typeof window !== 'undefined') {
+            const socket = io(base.replace(/\/$/, ''), { transports: ['websocket'], auth: { token: stored } });
+            socketRef.current = socket;
+            // new booking -> increment
+            socket.on('pinjaman:created', () => {
+              setPendingCount((c) => c + 1);
+            });
+            // update -> if becomes non-pending, decrement (guard min 0)
+            socket.on('pinjaman:updated', (payload: any) => {
+              try {
+                if (payload && payload.status && payload.status !== 'pending') {
+                  setPendingCount((c) => Math.max(0, c - 1));
+                }
+              } catch (e) {}
+            });
+          }
+        } catch (e) {
+          // ignore socket errors
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; if (socketRef.current) { try { socketRef.current.disconnect(); } catch(e){} } };
+  }, [user]);
+
+  // Avoid early return based on client-only state (localStorage) to prevent hydration errors.
+  // The layout will render on the server; client-side redirects happen inside useEffect.
 
   const navigation = [
     {
@@ -190,6 +239,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {item.name}
                       </span>
                     )}
+                    {item.href === '/dashboard_admin/pinjaman' && pendingCount > 0 && (
+                      <div className="ml-auto mr-3 inline-flex items-center justify-center bg-yellow-500 text-white text-[10px] font-black px-2 py-1 rounded-full">
+                        {pendingCount}
+                      </div>
+                    )}
                     {!isSidebarOpen && isActive && (
                       <div className="absolute right-0 w-1 h-6 bg-[#EF6145] rounded-l-full" />
                     )}
@@ -233,7 +287,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           
           <div className="flex items-center gap-3 lg:gap-6">
             <div className="hidden sm:flex items-center gap-2 mr-2">
-              <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl"><Bell size={20}/></button>
+              <NotificationBell />
               <button className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl"><Settings size={20}/></button>
             </div>
 

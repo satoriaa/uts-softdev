@@ -1,7 +1,81 @@
 'use client';
 
-import CrudPage from '@/app/components/CrudPage';
+import { useEffect, useState } from 'react';
 import { Home, CheckCircle2, Clock, ShieldCheck, Map } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import axios from '@/lib/axios';
+
+type Pinjaman = {
+  _id: string;
+  ruang: { namaRuang?: string } | string;
+  user: string;
+  userNama?: string;
+  tanggalPinjam: string;
+  status: 'pending' | 'terima' | 'tolak' | string;
+  notified?: boolean;
+}
+
+function AdminValidation() {
+  const { token } = useAuthStore();
+  const [items, setItems] = useState<Pinjaman[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchItems = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await axios.get('/pinjaman', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.data && res.data.data) {
+        setItems(res.data.data.reverse());
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { fetchItems() }, [token]);
+
+  const decide = async (id: string, status: 'terima' | 'tolak') => {
+    if (!token) return;
+    try {
+      await axios.put(`/pinjaman/${id}`, { status }, { headers: { Authorization: `Bearer ${token}` } });
+      // optimistically update
+      setItems((s) => s.map(i => i._id === id ? { ...i, status } : i));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  return (
+    <div>
+      <div className="mb-4 text-sm text-gray-500">Daftar permintaan pinjaman (klik Terima/Tolak untuk validasi)</div>
+      <div className="space-y-3">
+        {loading && <div className="text-sm text-gray-400">Memuat...</div>}
+        {items.map(it => (
+          <div key={it._id} className="p-3 border rounded-md flex items-center justify-between">
+            <div>
+              <div className="font-bold">{typeof it.ruang === 'string' ? it.ruang : (it.ruang?.namaRuang || 'Ruangan')}</div>
+              <div className="text-xs text-gray-500">{it.userNama || it.user} • {it.tanggalPinjam?.slice(0,10)}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              {it.status === 'pending' ? (
+                <>
+                  <button onClick={() => decide(it._id, 'terima')} className="px-3 py-1 bg-emerald-600 text-white rounded-md">Terima</button>
+                  <button onClick={() => decide(it._id, 'tolak')} className="px-3 py-1 bg-rose-600 text-white rounded-md">Tolak</button>
+                </>
+              ) : (
+                <div className={`px-3 py-1 rounded-md ${it.status === 'terima' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{it.status.toUpperCase()}</div>
+              )}
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && !loading && <div className="text-sm text-gray-500">Tidak ada permintaan.</div>}
+      </div>
+    </div>
+  )
+}
 
 export default function PinjamanPage() {
   return (
@@ -68,33 +142,7 @@ export default function PinjamanPage() {
           </div>
 
           <div className="p-6 md:p-10">
-            <CrudPage
-              title="" 
-              endpoint="/pinjaman"
-              fields={[
-                { 
-                  name: 'ruang', 
-                  label: 'ID / Kode Ruangan', 
-                  required: true 
-                },
-                { 
-                  name: 'user', 
-                  label: 'ID Pengguna / NIM', 
-                  required: true 
-                },
-                { 
-                  name: 'tanggalPinjam', 
-                  label: 'Jadwal Peminjaman', 
-                  type: 'date', 
-                  required: true 
-                },
-                { 
-                  name: 'status', 
-                  label: 'Keputusan Validasi (pending/terima/tolak)', 
-                  required: true 
-                },
-              ]}
-            />
+              <AdminValidation />
           </div>
         </div>
       </div>

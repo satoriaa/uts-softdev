@@ -62,6 +62,25 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
     [fields]
   );
 
+  function formatValue(val: any, field?: Field) {
+    if (val === undefined || val === null || val === '') return '-';
+    // If field expects date, format it
+    if (field?.type === 'date') {
+      try {
+        return new Date(val).toLocaleString();
+      } catch (e) {
+        return String(val);
+      }
+    }
+
+    if (typeof val === 'object') {
+      if (Array.isArray(val)) return val.map((v) => (v && v.namaRuang) || v?.nama || v?._id || String(v)).join(', ');
+      return val.namaRuang || val.nama || val._id || String(val);
+    }
+
+    return String(val);
+  }
+
   useEffect(() => {
     fetchItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -418,14 +437,14 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
                         />
                       )}
                       <div>
-                        <p className="font-bold text-gray-900 line-clamp-1">{it[fields[0].name]}</p>
-                        <p className="text-xs text-gray-400 font-medium truncate max-w-[150px]">{it[fields[1]?.name]}</p>
+                        <p className="font-bold text-gray-900 line-clamp-1">{formatValue(it[fields[0].name], fields[0])}</p>
+                        <p className="text-xs text-gray-400 font-medium truncate max-w-[150px]">{formatValue(it[fields[1]?.name], fields[1])}</p>
                       </div>
                     </div>
                   </td>
                   {fields.slice(0, 2).map((f) => (
                     <td key={f.name} className="py-5 text-sm text-gray-500 hidden sm:table-cell">
-                      {it[f.name]}
+                        {formatValue(it[f.name], f)}
                     </td>
                   ))}
                   <td className="py-5 text-right">

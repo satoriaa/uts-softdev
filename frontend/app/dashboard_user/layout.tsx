@@ -14,9 +14,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Bell,
+  
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import NotificationBell from '@/app/components/NotificationBell'
 
 // ================= MENU =================
 const MENU_ITEMS = [
@@ -110,7 +111,8 @@ export default function DashboardUserLayout({
     router.push('/login/user')
   }
 
-  if (!isReady || (!token && !localToken)) return null
+  // Always render the layout root to avoid hydration mismatches between server and client.
+  // Redirects happen inside useEffect after mount.
 
   return (
     <div className="flex min-h-screen bg-[#FDFDFD]">
@@ -193,11 +195,8 @@ export default function DashboardUserLayout({
     </div>
   </div>
 
-  <div className="flex items-center gap-4">
-    <button className="relative p-2 rounded-full hover:bg-gray-100">
-      <Bell size={20}/>
-      <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"/>
-    </button>
+    <div className="flex items-center gap-4">
+    <NotificationBell />
 
     <div className="h-6 w-px bg-gray-200"/>
 
