@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import io, { Socket } from 'socket.io-client';
+import io from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
@@ -33,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -51,13 +52,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           const storedTok = localStorage.getItem('token');
           if (storedTok) {
             try {
-              const payload = JSON.parse(atob(storedTok.split('.')[1]));
-              if (payload && payload.type && payload.type !== 'admin') {
-                router.replace('/login/admin');
-                return;
+              // ensure token looks like a JWT (three parts)
+              if (typeof storedTok === 'string' && storedTok.split('.') && storedTok.split('.').length === 3) {
+                const b64 = storedTok.split('.')[1];
+                if (b64 && b64 !== 'null') {
+                  const decoded = atob(b64);
+                  const payload = JSON.parse(decoded);
+                  if (payload && payload.type && payload.type !== 'admin') {
+                    router.replace('/login/admin');
+                    return;
+                  }
+                }
               }
             } catch (e) {
-              // ignore malformed token
+              // ignore malformed token or decoding errors
             }
           }
         }
@@ -79,7 +87,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           }
         }
       } catch (e) {
-        // ignore
       }
 
       if (user && user.role !== 'admin') {
@@ -89,7 +96,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [user, router]);
 
   useEffect(() => {
-    // fetch pending pinjaman count for admin badge
     let mounted = true;
     (async () => {
       try {

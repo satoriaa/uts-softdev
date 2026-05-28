@@ -10,6 +10,8 @@ const pinjamanSchema = new mongoose.Schema({
 
   tanggalPinjam: { type: Date, required: true },
   status: { type: String, enum: ['pending', 'terima', 'tolak', 'selesai'], default: 'pending' },
+
+  notified: { type: Boolean, default: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model('PinjamanRuang', pinjamanSchema);

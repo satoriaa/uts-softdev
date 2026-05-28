@@ -4,8 +4,9 @@
   "description": "Backend API for Admin Dashboard with MongoDB Atlas",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "migrate:notified": "node scripts/set_notified_default.js"
   },
   "keywords": [
     "nodejs",

@@ -236,9 +236,40 @@ exports.acknowledge = async (req, res) => {
     if (req.userType !== 'admin' && (!req.user || pin.user.toString() !== req.user._id.toString())) {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
-    pin.notified = true;
-    await pin.save();
-    res.json({ success: true, data: pin });
+    // Use a direct update to set `notified` without invoking full document validation.
+    // Some legacy documents may miss required snapshot fields and would fail on pin.save().
+    const updated = await PinjamanRuang.findByIdAndUpdate(id, { $set: { notified: true } }, { new: true });
+
+    // Emit socket update so clients (admins and owner) can react and remove notifications
+    try {
+      const io = req.app && req.app.locals && req.app.locals.io;
+      if (io) {
+        io.to(`user:${updated.user?.toString()}`).emit('pinjaman:updated', {
+          id: updated._id,
+          ruang: updated.ruang,
+          user: updated.user,
+          userNama: updated.userNama,
+          tanggalPinjam: updated.tanggalPinjam,
+          status: updated.status,
+          notified: updated.notified,
+          updatedAt: updated.updatedAt,
+        });
+        io.to('admins').emit('pinjaman:updated', {
+          id: updated._id,
+          ruang: updated.ruang,
+          user: updated.user,
+          userNama: updated.userNama,
+          tanggalPinjam: updated.tanggalPinjam,
+          status: updated.status,
+          notified: updated.notified,
+          updatedAt: updated.updatedAt,
+        });
+      }
+    } catch (e) {
+      console.error('Failed to emit socket event for pinjaman.acknowledge', e.message || e);
+    }
+
+    res.json({ success: true, data: updated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

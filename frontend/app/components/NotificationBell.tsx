@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { Bell } from 'lucide-react'
-import io, { Socket } from 'socket.io-client'
+import io from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 import { useAuthStore } from '@/store/authStore'
 import axios from '@/lib/axios'
 
@@ -19,7 +20,7 @@ type Notif = {
     message?: string
 }
 
-let socket: Socket | null = null
+let socket: ReturnType<typeof io> | null = null
 
 export default function NotificationBell() {
     const { user, token } = useAuthStore()
@@ -38,7 +39,7 @@ useEffect(() => {
         try {
         if (!token) return
         const res = await axios.get('/pinjaman', { headers: { Authorization: `Bearer ${token}` } })
-    if (res.data && res.data.data) {
+            if (res.data && res.data.data) {
           // map to notifications: show only non-pending or for admin show pending too
             const items = (res.data.data as any[])
             .filter((p: any) => {
@@ -55,8 +56,11 @@ useEffect(() => {
                 status: p.status,
                 createdAt: p.createdAt,
                 updatedAt: p.updatedAt,
+                // backend stores acknowledgement in `notified` - treat as `read` in UI
+                read: !!p.notified,
             }))
-            setNotifs(items.reverse())
+            // show only unread/active notifications in dropdown (remove already acknowledged)
+            setNotifs(items.filter(i => !i.read).reverse())
         }
     } catch (e) {
         // ignore
@@ -75,18 +79,30 @@ useEffect(() => {
     socket.on('pinjaman:created', (payload: Notif) => {
       // admins should see new bookings; users only see their own
     if (!mounted.current) return
+    // ensure we carry read state from payload.notified -> read
+    const item = { ...payload, read: !!(payload as any).notified };
+    // if server says this notification is already acknowledged, remove it from UI instead of re-adding
+    if ((payload as any).notified) {
+        setNotifs((s) => s.filter(n => n.id !== payload.id))
+        return
+    }
     if (user?.role === 'admin') {
-        setNotifs((s) => [{ ...payload }, ...s])
+        setNotifs((s) => [item, ...s])
     } else if (payload && payload.user && String(payload.user) === String(user?._id || (user as any)?.id)) {
-        setNotifs((s) => [{ ...payload }, ...s])
+        setNotifs((s) => [item, ...s])
     }
     })
 
-    socket.on('pinjaman:updated', (payload: Notif) => {
+        socket.on('pinjaman:updated', (payload: Notif) => {
     if (!mounted.current) return
       // always push updates (admin and user) if relevant
     if (user?.role === 'admin') {
-        setNotifs((s) => [{ ...payload }, ...s.filter(n => n.id !== payload.id)])
+                // if update indicates it's acknowledged, remove it; otherwise add/update
+                if ((payload as any).notified) {
+                    setNotifs((s) => s.filter(n => n.id !== payload.id))
+                } else {
+                    setNotifs((s) => [{ ...payload, read: !!(payload as any).notified }, ...s.filter(n => n.id !== payload.id)])
+                }
     } else if (payload.user && String(payload.user) === String(user?._id || (user as any)?.id)) {
         // create a friendly notification message for the user
         const ruangLabel = typeof payload.ruang === 'string' ? payload.ruang : (payload.ruang?.namaRuang || 'Ruangan');
@@ -101,12 +117,18 @@ useEffect(() => {
             status: payload.status,
             createdAt: payload.createdAt,
             updatedAt: payload.updatedAt,
-            read: false,
+                        // respect server-side notified flag if present
+                        read: !!(payload as any).notified,
           // add message to show in UI (rendered when present)
             message: `Permintaan pinjaman untuk ${ruangLabel} pada ${dateLabel} telah ${msgStatus}`,
         } as any;
 
-        setNotifs((s) => [friendly, ...s.filter(n => n.id !== payload.id)])
+        // if server indicates this updated notification is acknowledged, don't re-add it
+        if ((payload as any).notified) {
+            setNotifs((s) => s.filter(n => n.id !== payload.id))
+        } else {
+            setNotifs((s) => [friendly, ...s.filter(n => n.id !== payload.id)])
+        }
         }
     })
 
@@ -119,12 +141,27 @@ useEffect(() => {
 }, [token, user])
 
 const markRead = async (id: string) => {
+    if (!token) return
+    // optimistic update: remove from UI immediately
+    const prev = notifs
+    setNotifs((s) => s.filter(n => n.id !== id))
     try {
-        if (!token) return
-        await axios.put(`/pinjaman/${id}/ack`, null, { headers: { Authorization: `Bearer ${token}` } })
-        setNotifs((s) => s.map(n => (n.id === id ? { ...n, read: true } : n)))
-    } catch (e) {
-      // ignore
+        // use axios instance which already attaches Authorization header via interceptor
+        // Hindari mengirim body null agar tidak memicu parsing JSON yang bermasalah di beberapa konfigurasi
+        const res = await axios.put(`/pinjaman/${id}/ack`, {})
+        // Backend biasanya selalu mengembalikan JSON; kalau ada kasus response kosong, jangan mencoba parse manual
+
+
+        // if server responded with success:false, treat as failure
+        if (res && res.data && res.data.success === false) {
+            throw new Error(res.data.message || 'Failed to ack')
+        }
+    } catch (err: any) {
+        // revert on failure and inform developer/user with server message if present
+        console.error('Failed to ack notification', err)
+        setNotifs(prev)
+        const serverMsg = err?.response?.data?.message || err?.message || 'Gagal menandai notifikasi sebagai dibaca. Coba lagi.'
+        try { alert(serverMsg); } catch (e) {}
     }
 }
 
