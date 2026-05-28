@@ -8,8 +8,9 @@ import axios from '@/lib/axios';
 type Pinjaman = {
   _id: string;
   ruang: { namaRuang?: string } | string;
-  user: string;
+  user: any;
   userNama?: string;
+  userNim?: string;
   tanggalPinjam: string;
   status: 'pending' | 'terima' | 'tolak' | string;
   notified?: boolean;
@@ -57,7 +58,9 @@ function AdminValidation() {
           <div key={it._id} className="p-3 border rounded-md flex items-center justify-between">
             <div>
               <div className="font-bold">{typeof it.ruang === 'string' ? it.ruang : (it.ruang?.namaRuang || 'Ruangan')}</div>
-              <div className="text-xs text-gray-500">{it.userNama || it.user} • {it.tanggalPinjam?.slice(0,10)}</div>
+              <div className="text-xs text-gray-500">
+                {it.userNama || (typeof it.user === 'string' ? it.user : it.user?.nama) || '-'} • {it.userNim || (typeof it.user === 'string' ? '' : it.user?.nim) || '-'} • {it.tanggalPinjam?.slice(0,10)}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {it.status === 'pending' ? (

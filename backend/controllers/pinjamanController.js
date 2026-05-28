@@ -8,8 +8,19 @@ exports.getAll = async (req, res) => {
     if (req.userType === 'user' && req.user) {
       query.user = req.user._id;
     }
-    const data = await PinjamanRuang.find(query).populate('ruang user', 'namaRuang nama nim');
-    res.json({ success: true, count: data.length, data });
+
+    const data = await PinjamanRuang.find(query)
+      .populate('ruang', 'namaRuang')
+      .populate('user', 'nama nim');
+
+    // Karena UI memakai snapshot, pastikan selalu ada fallback
+    const normalized = data.map((d) => ({
+      ...d.toObject(),
+      userNama: d.userNama || d.user?.nama,
+      userNim: d.userNim || d.user?.nim,
+    }));
+
+    res.json({ success: true, count: normalized.length, data: normalized });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -17,28 +28,39 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const data = await PinjamanRuang.findById(req.params.id).populate('ruang user', 'namaRuang nama nim');
+    const data = await PinjamanRuang.findById(req.params.id)
+      .populate('ruang', 'namaRuang')
+      .populate('user', 'nama nim');
+
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const normalized = {
+      ...data.toObject(),
+      userNama: data.userNama || data.user?.nama,
+      userNim: data.userNim || data.user?.nim,
+    };
+
     // Emit socket notification about update
     try {
       const io = req.app && req.app.locals && req.app.locals.io;
       if (io) {
         io.emit('pinjaman:updated', {
-          id: data._id,
-          ruang: data.ruang,
-          user: data.user,
-          userNama: data.userNama,
-          tanggalPinjam: data.tanggalPinjam,
-          status: data.status,
-          notified: data.notified,
-          updatedAt: data.updatedAt,
+          id: normalized._id,
+          ruang: normalized.ruang,
+          user: normalized.user,
+          userNama: normalized.userNama,
+          userNim: normalized.userNim,
+          tanggalPinjam: normalized.tanggalPinjam,
+          status: normalized.status,
+          notified: normalized.notified,
+          updatedAt: normalized.updatedAt,
         });
       }
     } catch (e) {
       console.error('Failed to emit socket event for pinjaman.update', e.message || e);
     }
 
-    res.json({ success: true, data });
+    res.json({ success: true, data: normalized });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -46,13 +68,26 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Not authorized. Silakan login ulang.' });
+    }
+
+    if (req.user.role === 'admin') {
+      return res.status(403).json({ success: false, message: 'Hanya akun pengguna dapat melakukan peminjaman.' });
+    }
+
+    if (!req.user.nama || !req.user.nim) {
+      return res.status(400).json({ success: false, message: 'Data pengguna tidak lengkap. Silakan login ulang.' });
+    }
+
     const payload = {
       ...req.body,
-      user: req.user?._id,
-      userNama: req.user?.nama,
-      userNim: req.user?.nim,
+      user: req.user._id,
+      userNama: req.user.nama,
+      userNim: req.user.nim,
       notified: false,
     };
+
     // Basic conflict check: same room and same date (date-only)
     const tanggal = payload.tanggalPinjam ? new Date(payload.tanggalPinjam) : null;
     if (payload.ruang && tanggal) {

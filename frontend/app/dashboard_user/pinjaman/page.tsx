@@ -46,10 +46,13 @@ return (
 
         return (
             <div key={it._id} className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
                 <div>
                     <div className="font-bold">{ruangName}</div>
-                    <div className="text-sm text-gray-500">Tanggal: {new Date(it.tanggalPinjam).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-500">
+                      {it.userNama || '-'} • {it.userNim || '-'}
+                    </div>
+                    <div className="text-xs text-gray-500">Tanggal: {new Date(it.tanggalPinjam).toLocaleDateString()}</div>
                 </div>
                 <div>
                     <span className={`px-3 py-1 rounded-full text-xs font-black ${it.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : it.status === 'terima' ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'}`}>
