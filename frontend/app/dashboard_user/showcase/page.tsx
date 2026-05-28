@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Search, Heart, ExternalLink, LayoutGrid, Filter, X, User } from 'lucide-react';
+import io from 'socket.io-client';
+import { useAuthStore } from '@/store/authStore';
 import { debounce } from '@/lib/rateLimit';
 
 
@@ -12,12 +14,14 @@ interface Project {
   category: string;
   likes: number;
   image: string;
+  _id?: string;
+  likedBy?: string[];
 }
 
 // ==========================================
 // 🌟 KOMPONEN MODAL POPUP DETAIL KARYA
 // ==========================================
-function ProjectDetailModal({ project, onClose }: { project: Project; onClose: () => void }) {
+function ProjectDetailModal({ project, onClose, onApresiasi, currentUser, pending }: { project: Project; onClose: () => void; onApresiasi?: (p: Project) => void; currentUser?: any; pending?: boolean }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
       {/* Backdrop Klik untuk Menutup */}
@@ -85,11 +89,12 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
 
             {/* Tombol Aksi Bawah */}
             <div className="pt-8 mt-8 border-t border-gray-100 space-y-3">
-              <button className="w-full py-4 bg-gray-900 hover:bg-black text-white text-xs font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all">
+              {/* Modal Apresiasi button with hover and persistent liked color */}
+              <button disabled={!!pending} onClick={() => onApresiasi && onApresiasi(project)} className={`w-full py-4 text-xs font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 shadow-lg transform transition-transform duration-150 ${pending ? 'opacity-70 scale-95 cursor-not-allowed' : 'hover:scale-101'} ${Array.isArray(project.likedBy) && currentUser && project.likedBy.map(String).includes(String(currentUser._id)) ? 'bg-pink-500 text-white' : 'bg-gray-900 hover:bg-pink-400 text-white'}`}>
                 Apresiasi Karya
                 <Heart size={14} />
               </button>
-              
+
               <button 
                 onClick={onClose}
                 className="w-full py-3.5 bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all"
@@ -113,6 +118,9 @@ export default function ShowcasePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const { user, token } = useAuthStore();
+  const socketRef = useRef<any>(null);
+  const [pendingMap, setPendingMap] = useState<Record<string, boolean>>({});
   
   // 🎯 State untuk menyimpan data karya yang sedang dibuka pop up-nya
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -172,6 +180,9 @@ export default function ShowcasePage() {
               : k.username ?? '-',
           category: k.deskripsi ?? 'Karya',
           likes: typeof k.like === 'number' ? k.like : 0,
+          // attach server-side id if exists
+          _id: k._id,
+          likedBy: k.likedBy || [],
           image: k.gambar ?? '',
         }));
 
@@ -185,6 +196,99 @@ export default function ShowcasePage() {
 
     fetchData();
   }, []);
+
+  // setup socket to listen for karya updates (realtime likes)
+  useEffect(() => {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    if (!socketRef.current) {
+      socketRef.current = io(base.replace(/\/$/, ''), { transports: ['websocket'], auth: { token } });
+    }
+
+    const sock = socketRef.current;
+    sock.on('karya:updated', (payload: any) => {
+      if (!payload || !payload.karyaId) return;
+      setProjects((prev) => prev.map(p => {
+        if (String(p._id) === String(payload.karyaId)) {
+          return { ...p, likes: payload.likes };
+        }
+        return p;
+      }));
+    });
+
+    return () => {
+      try {
+        sock.off('karya:updated');
+        // do not disconnect global socket because NotificationBell also uses socket
+      } catch (e) {}
+    }
+  }, [token]);
+
+  // helper: find project index by server _id
+  const findProjectIndexByServerId = (id?: string) => projects.findIndex(p => String((p as any)._id) === String(id));
+
+  // toggle appreciation with optimistic UI and pending state
+  const toggleApresiasi = async (project: Project) => {
+    if (!token || !user) {
+      alert('Silakan login terlebih dahulu untuk memberikan apresiasi.');
+      return;
+    }
+
+    const serverId = (project as any)._id;
+    if (!serverId) {
+      alert('Karya tidak valid');
+      return;
+    }
+
+    const idx = findProjectIndexByServerId(serverId);
+    if (idx === -1) return;
+
+    const alreadyLiked = Array.isArray((project as any).likedBy) && (project as any).likedBy.map(String).includes(String(user._id));
+
+    // optimistic likedBy and likes update
+    setProjects(prev => prev.map(p => {
+      if (String((p as any)._id) !== String(serverId)) return p;
+      const newLikes = alreadyLiked ? Math.max(0, p.likes - 1) : p.likes + 1;
+      const newLikedBy = alreadyLiked ? ((p.likedBy || []) as string[]).filter(id => String(id) !== String(user._id)) : [ ...( (p.likedBy || []) as string[] ), user._id ];
+      return { ...p, likes: newLikes, likedBy: newLikedBy } as Project;
+    }));
+
+    // set pending state for this karya to disable button & show press animation
+    setPendingMap(prev => ({ ...prev, [serverId]: true }));
+
+    try {
+      const url = `http://localhost:5000/api/karya/${serverId}/like`;
+      const res = await fetch(url, {
+        method: alreadyLiked ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.message || 'Gagal melakukan aksi');
+
+      // reconcile likes from server
+      setProjects(prev => prev.map(p => {
+        if (String((p as any)._id) !== String(serverId)) return p;
+        const updatedLikes = typeof json?.likes === 'number' ? json.likes : p.likes;
+        // update likedBy based on whether now liked or not
+        const nowLiked = !alreadyLiked;
+        const updatedLikedBy = nowLiked ? [ ...( (p.likedBy || []) as string[] ).filter(Boolean), user._id ] : ((p.likedBy || []) as string[]).filter(id => String(id) !== String(user._id));
+        return { ...p, likes: updatedLikes, likedBy: updatedLikedBy } as Project;
+      }));
+
+    } catch (e: any) {
+      // revert optimistic change on error
+      console.error(e);
+      setProjects(prev => prev.map(p => {
+        if (String((p as any)._id) !== String(serverId)) return p;
+        return project; // revert to original project snapshot
+      }));
+      alert(e?.message || 'Gagal berkomunikasi dengan server');
+    } finally {
+      setPendingMap(prev => ({ ...prev, [serverId]: false }));
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -276,12 +380,30 @@ export default function ShowcasePage() {
                       </div>
 
                       {/* Tombol Buka Detail Popup via Icon */}
-                      <button 
-                        onClick={() => setSelectedProject(project)}
-                        className="p-3 bg-white/20 backdrop-blur-md rounded-xl hover:bg-[#EF6145] text-white transition-all"
-                      >
-                        <ExternalLink size={18} />
-                      </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => setSelectedProject(project)}
+                            className="p-3 bg-white/20 backdrop-blur-md rounded-xl hover:bg-[#EF6145] text-white transition-all"
+                          >
+                            <ExternalLink size={18} />
+                          </button>
+
+                          {/* Apresiasi toggle with optimistic UI and press animation */}
+                          {(() => {
+                              // derive up-to-date project from state to avoid stale snapshot
+                              const current = projects.find(p => String((p as any)._id) === String((project as any)._id)) || project;
+                              const isLiked = Array.isArray(current.likedBy) && current.likedBy.map(String).includes(String(user?._id));
+                              const pending = !!pendingMap[String((current as any)._id)];
+                              return (
+                                <button
+                                  disabled={pending}
+                                  onClick={() => toggleApresiasi(current)}
+                                  className={`p-3 rounded-xl text-white transform transition-transform duration-150 ${isLiked ? 'bg-pink-500' : 'bg-white/20 hover:bg-pink-400'} ${pending ? 'opacity-70 cursor-not-allowed scale-95' : 'hover:scale-110 active:scale-95'}`}>
+                                  <Heart size={16} className={`${isLiked ? 'fill-current' : ''}`} />
+                                </button>
+                              )
+                            })()}
+                        </div>
                     </div>
                   </div>
 
@@ -331,12 +453,19 @@ export default function ShowcasePage() {
       {/* ==========================================
           RENDER POPUP JIKA KARYA DIKLIK
          ========================================== */}
-      {selectedProject && (
-        <ProjectDetailModal 
-          project={selectedProject} 
-          onClose={() => setSelectedProject(null)} 
-        />
-      )}
+      {selectedProject && (() => {
+        // find latest project object from projects state
+        const latest = projects.find(p => String((p as any)._id) === String((selectedProject as any)._id)) || selectedProject;
+        return (
+          <ProjectDetailModal 
+            project={latest} 
+            onClose={() => setSelectedProject(null)} 
+            onApresiasi={toggleApresiasi}
+            currentUser={user}
+            pending={!!pendingMap[String((latest as any)._id)]}
+          />
+        )
+      })()}
     </div>
   );
 }

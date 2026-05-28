@@ -3,29 +3,9 @@ const User = require('../models/User');
 const Admin = require('../models/Admin');
 const mongoose = require('mongoose');
 
-const getPembicaraObjectId = async (identifier) => {
-  if (mongoose.Types.ObjectId.isValid(identifier)) {
-    return identifier;
-  }
-
-  const user = await User.findOne({ nim: identifier });
-  if (user) {
-    return user._id.toString();
-  }
-
-  const admin = await Admin.findOne({ 
-    $or: [{ email: identifier }, { nama: identifier }] 
-  });
-  if (admin) {
-    return admin._id.toString();
-  }
-
-  throw new Error(`User/Admin dengan NIM/Email/Nama "${identifier}" tidak ditemukan`);
-};
-
 exports.getAll = async (req, res) => {
   try {
-    const data = await Event.find().populate('pembicara', 'nama nim email role');
+  const data = await Event.find();
     res.json({ success: true, count: data.length, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -34,7 +14,7 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const data = await Event.findById(req.params.id).populate('pembicara', 'nama nim email role');
+  const data = await Event.findById(req.params.id);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data });
   } catch (error) {
@@ -46,13 +26,7 @@ exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
 
-    if (payload.pembicara) {
-      try {
-        payload.pembicara = await getPembicaraObjectId(payload.pembicara);
-      } catch (err) {
-        return res.status(400).json({ success: false, message: err.message });
-      }
-    }
+    // pembicara removed from payload processing
     
     if (req.file) payload.gambar = req.file.secure_url || req.file.path;
     const data = await Event.create(payload);
@@ -66,13 +40,7 @@ exports.update = async (req, res) => {
   try {
     const payload = { ...req.body };
 
-    if (payload.pembicara) {
-      try {
-        payload.pembicara = await getPembicaraObjectId(payload.pembicara);
-      } catch (err) {
-        return res.status(400).json({ success: false, message: err.message });
-      }
-    }
+    // pembicara removed from payload processing
     
     if (req.file) payload.gambar = req.file.secure_url || req.file.path;
     const data = await Event.findByIdAndUpdate(req.params.id, payload, { new: true });
@@ -92,31 +60,3 @@ exports.remove = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-exports.getSpeakers = async (req, res) => {
-  try {
-    const users = await User.find({}, '_id nama nim email role').lean();
-    
-    const admins = await Admin.find({}, '_id nama email role').lean();
-    
-    const speakers = [
-      ...users.map(u => ({
-        _id: u._id.toString(),
-        label: `${u.nama} (${u.nim})`,
-        value: u.nim,
-        type: 'user'
-      })),
-      ...admins.map(a => ({
-        _id: a._id.toString(),
-        label: `${a.nama} (${a.email}) - Admin`,
-        value: a.email,
-        type: 'admin'
-      }))
-    ];
-    
-    res.json({ success: true, data: speakers });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-

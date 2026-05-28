@@ -18,6 +18,10 @@ type Notif = {
     updatedAt?: string
     read?: boolean
     message?: string
+    // generic fields for other notifications
+    type?: string
+    karyaId?: string
+    liker?: { _id?: string, nama?: string, nim?: string }
 }
 
 let socket: ReturnType<typeof io> | null = null
@@ -92,6 +96,20 @@ useEffect(() => {
         setNotifs((s) => [item, ...s])
     }
     })
+
+        socket.on('karya:liked', (payload: Notif) => {
+            if (!mounted.current) return
+            // payload contains karyaId, liker, likes
+            // only notify the owner (server emits to owner's room)
+            const friendly = {
+                id: String(payload.karyaId) + ':' + (payload.liker?._id || ''),
+                message: payload.liker ? `${payload.liker.nama || 'Seseorang'} telah menyukai karyamu` : 'Karyamu mendapat like',
+                createdAt: payload.createdAt,
+                read: false,
+                type: 'karya:liked',
+            } as any
+            setNotifs((s) => [friendly, ...s])
+        })
 
         socket.on('pinjaman:updated', (payload: Notif) => {
     if (!mounted.current) return
