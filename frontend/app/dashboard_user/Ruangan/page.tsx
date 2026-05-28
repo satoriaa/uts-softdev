@@ -144,13 +144,15 @@ export default function PeminjamanRuanganPage() {
       const list: any[] = res.data?.data || [];
       const map: Record<string, string> = {};
       const today = new Date();
-      const startToday = new Date(new Date(today).setHours(0, 0, 0, 0));
       const endToday = new Date(new Date(today).setHours(23, 59, 59, 999));
-      
+
+      // Map accepted bookings (status 'terima') for which the booking date is today or in the past.
+      // This lets users mark their accepted bookings as finished even after the event day.
       for (const p of list) {
         if (p.status === 'terima' && p.ruang) {
           const tp = p.tanggalPinjam ? new Date(p.tanggalPinjam) : null;
-          if (tp && tp >= startToday && tp <= endToday) {
+          // include bookings whose tanggalPinjam is <= end of today
+          if (tp && tp <= endToday) {
             const ruangId = typeof p.ruang === 'string' ? p.ruang : (p.ruang._id || p.ruang);
             map[String(ruangId)] = p._id;
           }
