@@ -77,6 +77,11 @@ export default function TenantPage() {
                   required: true 
                 },
                 { 
+                  name: 'proker', 
+                  label: 'Proker (Nama Proker Terdaftar)', 
+                  required: true 
+                },
+                { 
                   name: 'gambar', 
                   label: 'Foto Profil Booth / Logo Tenant', 
                   type: 'file', 
@@ -95,7 +100,7 @@ export default function TenantPage() {
            </p>
            <div className="w-2 h-2 bg-[#EF6145] rounded-full animate-ping"></div>
         </div>
-        <span className="text-[9px] text-gray-300 font-medium">© 2026 FSRD UNTAR - Creative Management</span>
+        <span className="text-[9px] text-gray-300 font-medium">©️ 2026 FSRD UNTAR - Creative Management</span>
       </div>
 
     </div>

@@ -5,7 +5,22 @@ const karyaSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   judul: { type: String, required: true },
   deskripsi: { type: String, required: true },
+  kategori: {
+    type: String,
+    required: true,
+    enum: [
+      'sketsa',
+      'lukisan',
+      'digital art',
+      'tugas',
+      'desain',
+      'fotografi',
+      'nirmana',
+      'project'
+    ],
+  },
   gambar: { type: String },
+
   komen: [{ text: String, user: String, tanggal: { type: Date, default: Date.now } }],
   // keep numeric 'like' for backward compatibility but prefer likedBy.length
   like: { type: Number, default: 0 },

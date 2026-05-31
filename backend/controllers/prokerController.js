@@ -56,13 +56,31 @@ exports.daftar = async (req, res) => {
   try {
     const proker = await Proker.findById(req.params.id);
     if (!proker) return res.status(404).json({ success: false, message: 'Not found' });
-    if (!proker.pendaftar.includes(req.user.id)) {
-      proker.pendaftar.push(req.user.id);
-      await proker.save();
+
+    const userId = req.user.id;
+
+    const isAlreadyRegistered = proker.pendaftar.some((id) => String(id) === String(userId));
+    if (isAlreadyRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: 'Anda sudah terdaftar untuk proker ini',
+      });
     }
+
+    const kapasitas = proker.kapasitas ?? 0;
+    const filled = proker.pendaftar.length;
+    if (filled >= kapasitas) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pendaftaran ditutup (kapasitas penuh)',
+      });
+    }
+
+    proker.pendaftar.push(userId);
+    await proker.save();
+
     res.json({ success: true, data: proker });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

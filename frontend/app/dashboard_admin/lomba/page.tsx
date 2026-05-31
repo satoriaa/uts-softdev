@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import CrudPage from '@/app/components/CrudPage';
 import { Trophy, Target, Flag, Rocket, Award } from 'lucide-react';
@@ -90,6 +90,11 @@ export default function LombaPage() {
                   required: true 
                 },
                 { 
+                  name: 'googleFormUrl', 
+                  label: 'Google Form URL', 
+                  required: false 
+                },
+                { 
                   name: 'gambar', 
                   label: 'Flyer/Poster Resmi (Max 5MB)', 
                   type: 'file', 
@@ -109,7 +114,7 @@ export default function LombaPage() {
           </p>
           <div className="h-[2px] w-12 bg-[#EF6145]"></div>
         </div>
-        <p className="text-[10px] text-gray-300 font-medium">© 2026 FSRD UNTAR - Creative Management System</p>
+        <p className="text-[10px] text-gray-300 font-medium">©️ 2026 FSRD UNTAR - Creative Management System</p>
       </div>
 
     </div>

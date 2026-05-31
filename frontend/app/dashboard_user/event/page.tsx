@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Calendar, MapPin, Plus, X } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Plus, X, Zap } from 'lucide-react';
 import api from '@/lib/axios';
 
 type EventFromApi = {
@@ -41,6 +41,9 @@ type ProkerFromApi = {
   gambar?: string;
 };
 
+// NOTE: Proker dihapus dari halaman Activity user.
+// Tipe Proker dibiarkan agar kompatibel dengan struktur kode, tapi data proker tidak akan di-fetch/dimasukkan ke list.
+
 type EventItem = {
   id: string;
   title: string;
@@ -50,9 +53,10 @@ type EventItem = {
   image: string;
   description: string;
   requirement?: string;
+  googleFormUrl?: string;
 };
 
-const CATEGORIES = ['Semua', 'Event', 'Workshop', 'Lomba', 'Proker'];
+const CATEGORIES = ['Semua', 'Event', 'Workshop', 'Lomba'];
 
 function formatTanggal(value: string | Date) {
   const d = typeof value === 'string' ? new Date(value) : value;
@@ -73,6 +77,7 @@ function mapToItem(params: {
   image?: string;
   description?: string;
   requirement?: string;
+  googleFormUrl?: string;
 }): EventItem {
   return {
     id: params.id,
@@ -83,6 +88,7 @@ function mapToItem(params: {
     image: params.image || DEFAULT_IMAGE,
     description: params.description || 'Tidak ada deskripsi untuk kegiatan ini.',
     requirement: params.requirement,
+    googleFormUrl: params.googleFormUrl,
   };
 }
 
@@ -189,6 +195,12 @@ function ActivityCard({ item, onOpenDetail }: { item: EventItem; onOpenDetail: (
    layered shadows, glassmorphism close btn
 ───────────────────────────────────────── */
 function DetailModal({ item, onClose }: { item: EventItem; onClose: () => void }) {
+  function handleRegister() {
+    const url = item.googleFormUrl;
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -343,7 +355,14 @@ function DetailModal({ item, onClose }: { item: EventItem; onClose: () => void }
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50/80 border-t border-gray-100 flex justify-end flex-shrink-0">
+          <div className="px-6 py-4 bg-gray-50/80 border-t border-gray-100 flex justify-end flex-shrink-0 gap-3">
+            <button
+              onClick={handleRegister}
+              disabled={!item.googleFormUrl}
+              className="px-6 py-2.5 bg-[#EF6145] hover:bg-[#d94e3d] disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed active:scale-95 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              Register
+            </button>
             <button
               onClick={handleClose}
               className="px-6 py-2.5 bg-gray-900 hover:bg-gray-700 active:scale-95 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
@@ -407,32 +426,56 @@ export default function EventPage() {
         setLoading(true);
         setError(null);
 
-        const [eventRes, workshopRes, lombaRes, prokerRes] = await Promise.all([
+        const [eventRes, workshopRes, lombaRes] = await Promise.all([
           api.get('/event').catch(() => null),
           api.get('/workshop').catch(() => null),
           api.get('/lomba').catch(() => null),
-          api.get('/proker').catch(() => null),
         ]);
 
         const eventData = eventRes?.data?.data as EventFromApi[] | undefined;
         const workshopData = workshopRes?.data?.data as WorkshopFromApi[] | undefined;
         const lombaData = lombaRes?.data?.data as LombaFromApi[] | undefined;
-        const prokerData = prokerRes?.data?.data as ProkerFromApi[] | undefined;
 
         const mapped: EventItem[] = [
-          ...(eventData ?? []).map((e) =>
-            mapToItem({ id: e._id, title: e.judul, date: e.tanggal, location: e.lokasi, category: 'Event', image: e.gambar, description: e.deskripsi, requirement: e.ketentuan })
+          ...(eventData ?? []).map((e: any) =>
+            mapToItem({
+              id: e._id,
+              title: e.judul,
+              date: e.tanggal,
+              location: e.lokasi,
+              category: 'Event',
+              image: e.gambar,
+              description: e.deskripsi,
+              requirement: e.ketentuan,
+              googleFormUrl: e.googleFormUrl,
+            })
           ),
-          ...(workshopData ?? []).map((w) =>
-            mapToItem({ id: w._id, title: w.nama || 'Workshop', date: w.tanggal, location: w.tempat || 'Lokasi', category: 'Workshop', image: w.gambar, description: w.deskripsi })
+          ...(workshopData ?? []).map((w: any) =>
+            mapToItem({
+              id: w._id,
+              title: w.nama || 'Workshop',
+              date: w.tanggal,
+              location: w.tempat || 'Lokasi',
+              category: 'Workshop',
+              image: w.gambar,
+              description: w.deskripsi,
+              googleFormUrl: w.googleFormUrl,
+            })
           ),
-          ...(lombaData ?? []).map((l) =>
-            mapToItem({ id: l._id, title: l.nama || 'Lomba', date: l.tanggal, location: l.tempat || 'Lokasi', category: 'Lomba', image: l.gambar, description: l.deskripsi })
-          ),
-          ...(prokerData ?? []).map((p) =>
-            mapToItem({ id: p._id, title: p.nama || 'Proker', date: p.tanggal, location: p.tempat || 'Lokasi', category: 'Proker', image: p.gambar, description: p.deskripsi })
+          ...(lombaData ?? []).map((l: any) =>
+            mapToItem({
+              id: l._id,
+              title: l.nama || 'Lomba',
+              date: l.tanggal,
+              location: l.tempat || 'Lokasi',
+              category: 'Lomba',
+              image: l.gambar,
+              description: l.deskripsi,
+              googleFormUrl: l.googleFormUrl,
+            })
           ),
         ];
+
 
         if (mounted) setItems(mapped);
       } catch (err: any) {
@@ -451,8 +494,9 @@ export default function EventPage() {
     Event: items.filter((i) => i.category === 'Event'),
     Workshop: items.filter((i) => i.category === 'Workshop'),
     Lomba: items.filter((i) => i.category === 'Lomba'),
-    Proker: items.filter((i) => i.category === 'Proker'),
+
   }), [items]);
+
 
   const filteredItems = useMemo(() => {
     if (activeCategory === 'Semua') return items;

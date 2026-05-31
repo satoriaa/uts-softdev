@@ -66,6 +66,20 @@ exports.getById = async (req, res) => {
   }
 };
 
+exports.getByRuang = async (req, res) => {
+  try {
+    const ruangId = req.params.ruangId;
+    const data = await PinjamanRuang.find({ 
+      ruang: ruangId,
+      status: { $in: ['terima', 'pending'] }
+    }).select('userNama userNim tanggalPinjam status createdAt');
+
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.create = async (req, res) => {
   try {
     if (!req.user) {

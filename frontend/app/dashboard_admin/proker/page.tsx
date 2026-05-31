@@ -79,20 +79,42 @@ export default function ProkerPage() {
                   required: true 
                 },
                 { 
-                  name: 'tanggal', 
-                  label: 'Estimasi Tanggal Main', 
-                  type: 'date', 
-                  required: true 
+                  name: 'tanggal',
+                  label: 'Tanggal',
+                  type: 'date',
+                  required: true
                 },
                 { 
-                  name: 'tempat', 
-                  label: 'Lokasi / Platform Eksekusi', 
-                  required: true 
+                  name: 'jam',
+                  label: 'Jam',
+                  required: true
                 },
                 { 
-                  name: 'gambar', 
+                  name: 'tempat',
+                  label: 'Tempat (Google Maps Link)',
+                  required: true
+                },
+                { 
+                  name: 'namaPembicara',
+                  label: 'Nama Pembicara',
+                  required: true
+                },
+                { 
+                  name: 'kapasitas',
+                  label: 'Kapasitas',
+                  type: 'number',
+                  required: true
+                },
+                { 
+                  name: 'googleFormUrl',
+                  label: 'Google Form URL',
+                  required: true 
+                },
+
+                { 
+                  name: 'gambar',
                   label: 'Key Visual / Poster (Upload)', 
-                  type: 'file', 
+                  type: 'file',
                   required: true 
                 },
               ]}

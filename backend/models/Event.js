@@ -6,8 +6,9 @@ const eventSchema = new mongoose.Schema(
     deskripsi: { type: String, required: true },
     ketentuan: { type: String, required: true },
     lokasi: { type: String, required: true },
-  tanggal: { type: Date, required: true },
-  gambar: { type: String },
+    tanggal: { type: Date, required: true },
+    gambar: { type: String },
+    googleFormUrl: { type: String },
   },
   { timestamps: true }
 );

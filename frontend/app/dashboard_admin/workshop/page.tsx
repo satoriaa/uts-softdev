@@ -100,6 +100,11 @@ export default function WorkshopPage() {
                   required: true 
                 },
                 { 
+                  name: 'googleFormUrl', 
+                  label: 'Google Form URL', 
+                  required: false 
+                },
+                { 
                   name: 'gambar', 
                   label: 'Key Visual / Poster Workshop (Upload)', 
                   type: 'file', 
@@ -116,7 +121,7 @@ export default function WorkshopPage() {
            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.6em]">Learn by Doing</span>
            <div className="h-[1px] w-12 bg-gray-200"></div>
         </div>
-        <p className="text-[11px] text-gray-300 font-medium">© 2026 FSRD UNTAR • Central Hub Ecosystem</p>
+        <p className="text-[11px] text-gray-300 font-medium">©️ 2026 FSRD UNTAR • Central Hub Ecosystem</p>
       </div>
 
     </div>

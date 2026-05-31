@@ -5,30 +5,77 @@ import api from '@/lib/axios';
 import { 
   ImageIcon, AlertCircle, Box, Calendar, 
   Users, TrendingUp, ArrowRight, Sparkles, 
-  Zap, Clock, ChevronRight, LayoutGrid
+  Zap, Clock, ChevronRight, LayoutGrid, RefreshCw
 } from 'lucide-react';
 
 export default function DashboardHome() {
   const [stats, setStats] = useState({ 
     users: 0, karya: 0, ruang: 0, event: 0, 
-    proker: 0, lomba: 0, tenant: 0, workshop: 0, majalah: 0 
+    proker: 0, lomba: 0, tenant: 0, workshop: 0, majalah: 0, pinjaman: 0
   });
+  const [approvals, setApprovals] = useState<any[]>([]);
+  const [loadingApprovals, setLoadingApprovals] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const endpoints = ['/users', '/karya', '/ruang', '/event', '/proker', '/lomba', '/tenant', '/workshop', '/majalah'];
+        const endpoints = ['/users', '/karya', '/ruang', '/event', '/proker', '/lomba', '/tenant', '/workshop', '/majalah', '/pinjaman'];
         const results = await Promise.all(
           endpoints.map(path => api.get(path).then(r => r.data.data?.length || 0).catch(() => 0))
         );
         setStats({
           users: results[0], karya: results[1], ruang: results[2],
           event: results[3], proker: results[4], lomba: results[5],
-          tenant: results[6], workshop: results[7], majalah: results[8]
+          tenant: results[6], workshop: results[7], majalah: results[8], pinjaman: results[9]
         });
       } catch (err) { console.error(err); }
     };
     fetchStats();
+  }, []);
+
+  const fetchApprovals = async () => {
+    setLoadingApprovals(true);
+    try {
+      const [pinjamanRes, usersRes] = await Promise.all([
+        api.get('/pinjaman').catch(() => ({ data: { data: [] } })),
+        api.get('/users').catch(() => ({ data: { data: [] } }))
+      ]);
+      
+      const pinjamanData = (pinjamanRes.data?.data || [])
+        .filter((item: any) => item.status === 'pending')
+        .slice(0, 5)
+        .map((item: any) => ({
+          _id: item._id,
+          type: 'pinjaman',
+          title: 'Izin Peminjaman',
+          name: item.userNama || item.user?.nama || 'Unknown User',
+          detail: `${item.tanggalPinjam?.slice(0, 10) || 'N/A'}`,
+          room: typeof item.ruang === 'string' ? item.ruang : (item.ruang?.namaRuang || 'Ruangan'),
+          author: item.user?.nim || 'Student'
+        }));
+
+      const userData = (usersRes.data?.data || [])
+        .filter((item: any) => item.role === 'student')
+        .slice(0, 5)
+        .map((item: any) => ({
+          _id: item._id,
+          type: 'user',
+          title: 'User Management',
+          name: item.nama || 'Unknown',
+          detail: item.jurusan || 'N/A',
+          author: item.nim || 'N/A'
+        }));
+
+      setApprovals([...pinjamanData, ...userData].slice(0, 2));
+    } catch (err) {
+      console.error('Error fetching approvals:', err);
+    } finally {
+      setLoadingApprovals(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApprovals();
   }, []);
 
   return (
@@ -52,58 +99,67 @@ export default function DashboardHome() {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <StatCard icon={<ImageIcon size={24}/>} color="blue" value={stats.karya || 12} label="Pending Kurasi" trend="+2 New" />
-        <StatCard icon={<Clock size={24}/>} color="orange" value={stats.ruang || 5} label="Pinjaman Ruang" trend="Urgent" />
-        <StatCard icon={<Box size={24}/>} color="green" value={stats.ruang + 10} label="Stok Peralatan" trend="Safe" />
-        <StatCard icon={<Calendar size={24}/>} color="purple" value={stats.event || 4} label="Upcoming Events" trend="This Week" />
+        <StatCard icon={<ImageIcon size={24}/>} color="blue" value={stats.karya || 0} label="Total Karya" trend="+2 New" />
+        <StatCard icon={<Clock size={24}/>} color="orange" value={stats.pinjaman || 0} label="Ruangan Dipinjam" trend="Urgent" />
+        <StatCard icon={<Box size={24}/>} color="green" value={stats.users || 0} label="Total User" trend="Safe" />
+        <StatCard icon={<Calendar size={24}/>} color="purple" value={stats.event || 0} label="Event Akan Datang" trend="This Week" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-3 space-y-8">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
               <LayoutGrid className="text-[#EF6145]" size={24}/>
               Priority Approval
             </h3>
-            <button className="text-sm font-bold text-gray-400 hover:text-[#EF6145] transition-colors">View All</button>
+            <div className="flex items-center gap-3">
+              <button onClick={fetchApprovals} disabled={loadingApprovals} className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <RefreshCw size={18} className={`text-gray-600 ${loadingApprovals ? 'animate-spin' : ''}`} />
+              </button>
+              <button className="text-sm font-bold text-gray-400 hover:text-[#EF6145] transition-colors">View All</button>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ActionCard 
-              title="Kurasi Karya" 
-              detail="Deadline: Today, 17:00" 
-              name="Abstract Expressionism" 
-              badge="Fine Art" 
-              author="Andi Prasetyo"
-              img="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=300" 
-            />
-            <ActionCard 
-              title="Izin Peminjaman" 
-              detail="5 - 8 Mei 2026" 
-              name="Budi Santoso" 
-              sub="Wacom Cintiq Pro 27" 
-              author="DKV Student"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <h3 className="text-2xl font-black text-gray-900 tracking-tight">System Health</h3>
-          <div className="bg-white rounded-[2rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-50 flex flex-col gap-6">
-             <BottomStat icon={<Users />} value={stats.users} label="Total Members" color="text-blue-500" />
-             <div className="h-[1px] w-full bg-gray-100"></div>
-             <BottomStat icon={<TrendingUp />} value={stats.karya} label="Live Gallery" color="text-green-500" />
-             <div className="h-[1px] w-full bg-gray-100"></div>
-             <BottomStat icon={<Sparkles />} value={stats.event} label="Active Events" color="text-purple-500" />
-          </div>
-          
-          <div className="bg-[#EF6145] p-6 rounded-[2rem] text-white flex items-center justify-between group cursor-pointer overflow-hidden relative">
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Documentation</p>
-              <p className="font-bold text-lg">Download Report</p>
-            </div>
-            <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+            {approvals.length > 0 ? (
+              approvals.map((approval) => (
+                approval.type === 'pinjaman' ? (
+                  <ActionCard 
+                    key={approval._id}
+                    title={approval.title}
+                    detail={approval.detail}
+                    name={approval.name}
+                    room={approval.room}
+                    author={approval.author}
+                  />
+                ) : (
+                  <ActionCard 
+                    key={approval._id}
+                    title={approval.title}
+                    detail={approval.detail}
+                    name={approval.name}
+                    author={approval.author}
+                  />
+                )
+              ))
+            ) : (
+              <>
+                <ActionCard 
+                  title="Kurasi Karya" 
+                  detail="Deadline: Today, 17:00" 
+                  name="Abstract Expressionism" 
+                  author="Andi Prasetyo"
+                  img="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=300" 
+                />
+                <ActionCard 
+                  title="Izin Peminjaman" 
+                  detail="5 - 8 Mei 2026" 
+                  name="Budi Santoso" 
+                  room="Wacom Cintiq Pro 27" 
+                  author="DKV Student"
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -137,7 +193,7 @@ function StatCard({ icon, color, value, label, trend }: any) {
   );
 }
 
-function ActionCard({ title, detail, name, badge, sub, img, author }: any) {
+function ActionCard({ title, detail, name, room, author, img, badge, sub }: any) {
   return (
     <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_15px_40px_rgba(0,0,0,0.03)] border border-gray-50 flex flex-col hover:shadow-2xl transition-all duration-700">
       <div className="flex justify-between items-center mb-6">
@@ -162,8 +218,13 @@ function ActionCard({ title, detail, name, badge, sub, img, author }: any) {
           <p className="text-sm font-bold text-[#EF6145] mt-0.5">{author}</p>
           <div className="flex items-center gap-2 mt-2 text-gray-400">
             <Clock size={12} />
-            <span className="text-[10px] font-medium uppercase tracking-tighter">{detail}</span>
+            <span className="text-[10px] font-medium uppercase tracking-tighter">{detail || 'No detail'}</span>
           </div>
+          {(room || sub) && (
+            <div className="text-xs text-gray-500 mt-2">
+              {room || sub}
+            </div>
+          )}
         </div>
       </div>
 

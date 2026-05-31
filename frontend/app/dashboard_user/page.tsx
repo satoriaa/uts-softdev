@@ -12,7 +12,7 @@ import {
   Palette,
 } from 'lucide-react'
 
-// --- ADVANCED CUSTOM STYLES ---
+// ADVANCED CUSTOM STYLES 
 const customStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght=300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
 
@@ -137,7 +137,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* --- MARQUEE SECTION --- */}
+        {/* MARQUEE SECTION */}
         <div className="py-12 overflow-hidden">
           <div className="animate-marquee">
             {[...Array(2)].map((_, listIdx) => (
@@ -155,7 +155,7 @@ export default function UserHomePage() {
           </div>
         </div>
 
-        {/* --- MAIN BENTO GRID FEATURES (REVISI) --- */}
+        {/* MAIN BENTO GRID FEATURES (REVISI) */}
         <section className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
@@ -211,7 +211,7 @@ export default function UserHomePage() {
                   <Package size={24} />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight leading-tight">
-                  Pinjam Ruang <br />& Alat
+                  Pinjam Ruangan <br /> FSRD
                 </h2>
                 <p className="text-gray-300 text-sm font-medium leading-relaxed max-w-sm">
                   Sistem manajemen fasilitas kampus yang terintegrasi, transparan, dan instan.
@@ -228,7 +228,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* --- SMALL BENTO CARDS --- */}
+        {/* SMALL BENTO CARDS */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-[24px] p-6 border border-gray-100 flex flex-col items-center text-center justify-center gap-3 hover:shadow-md transition-all duration-300">
             <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center"><Calendar size={20} /></div>
@@ -247,7 +247,7 @@ export default function UserHomePage() {
           </div>
         </section>
 
-        {/* --- REFINED CTA SECTION --- */}
+        {/* REFINED CTA SECTION */}
         <section className="mb-12">
           <Reveal direction="scale">
             <div className="bg-[#0F1115] rounded-[40px] p-10 md:p-16 text-center relative overflow-hidden">
@@ -267,16 +267,7 @@ export default function UserHomePage() {
           </Reveal>
         </section>
 
-        {/* --- MINIMAL FOOTER --- */}
-        <footer className="py-8 flex flex-col sm:flex-row justify-between items-center border-t border-gray-200 gap-4">
-          <p className="text-xs font-medium text-gray-400">© 2026 CCHUB. FSRD UNIVERSITY.</p>
-          <div className="flex gap-6 text-xs font-bold text-gray-600">
-            <a href="#" className="hover:text-[#F05A37] transition-colors">Instagram</a>
-            <a href="#" className="hover:text-[#F05A37] transition-colors">Behance</a>
-            <a href="#" className="hover:text-[#F05A37] transition-colors">Dribbble</a>
-          </div>
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Design Matters</p>
-        </footer>
+
       </main>
     </div>
   )

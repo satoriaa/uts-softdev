@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 const ruangSchema = new mongoose.Schema(
   {
     namaRuang: { type: String, required: true },
-    lantai: { type: Number, required: true },
+    lantai: { type: String, required: true },
+    kategori: {
+      type: String,
+      enum: ['galeri', 'studio', 'ruangan'],
+      required: true,
+    },
     status: {
       type: String,
       enum: ['pending', 'tersedia', 'tidak_tersedia'],
@@ -17,4 +22,3 @@ const ruangSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Ruang', ruangSchema);
-

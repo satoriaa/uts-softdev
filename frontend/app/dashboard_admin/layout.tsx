@@ -25,6 +25,7 @@ import {
   
 } from 'lucide-react';
 import NotificationBell from '@/app/components/NotificationBell';
+import Footer from '@/app/components/Footer';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -43,57 +44,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   useEffect(() => {
-    // Quick client-side check: if there's a stored token but it decodes to a non-admin type,
-    // redirect immediately. Otherwise, if token exists but user isn't populated, fetch /auth/me
-    // to populate the store and validate admin role. If not admin, redirect to admin login.
+    let cancelled = false;
+
     (async () => {
-      try {
-        if (typeof window !== 'undefined') {
-          const storedTok = localStorage.getItem('token');
-          if (storedTok) {
-            try {
-              // ensure token looks like a JWT (three parts)
-              if (typeof storedTok === 'string' && storedTok.split('.') && storedTok.split('.').length === 3) {
-                const b64 = storedTok.split('.')[1];
-                if (b64 && b64 !== 'null') {
-                  const decoded = atob(b64);
-                  const payload = JSON.parse(decoded);
-                  if (payload && payload.type && payload.type !== 'admin') {
-                    router.replace('/login/admin');
-                    return;
-                  }
-                }
-              }
-            } catch (e) {
-              // ignore malformed token or decoding errors
-            }
-          }
-        }
-      } catch (e) {
-        // ignore
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!stored) {
+        router.replace('/login/admin');
+        return;
       }
-      try {
-        const stored = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        if (stored && !user) {
+
+      // hydrate if needed
+      if (!user) {
+        try {
           const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
           const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
             headers: { Authorization: `Bearer ${stored}` },
           });
+          if (cancelled) return;
           if (res.ok) {
             const json = await res.json();
-            // setAuth expects (user, token) but we only have setAuth in store via hook; use it if available
-            const setAuth = (useAuthStore.getState && useAuthStore.getState().setAuth) as any;
-            if (json?.data && setAuth) setAuth(json.data, stored);
+            const setAuth = useAuthStore.getState().setAuth;
+            if (json?.data) setAuth(json.data, stored);
           }
+        } catch (e) {
+          // ignore
         }
-      } catch (e) {
       }
 
-      if (user && user.role !== 'admin') {
+      // validate role after hydration attempt
+      if (cancelled) return;
+      const hydratedUser = useAuthStore.getState().user;
+      if (hydratedUser && hydratedUser.role !== 'admin') {
         router.replace('/login/admin');
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user, router]);
+
 
   useEffect(() => {
     let mounted = true;
@@ -320,8 +310,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* CONTENT */}
-        <main className="flex-1 overflow-y-auto bg-[#FDFDFB] p-6 lg:p-10">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto bg-[#FDFDFB] flex flex-col">
+          <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full flex-1">
             {children}
           </div>
         </main>

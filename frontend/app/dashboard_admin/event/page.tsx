@@ -71,6 +71,7 @@ export default function EventPage() {
                 { name: 'ketentuan', label: 'Ketentuan Peserta', type: 'textarea', required: true },
                 { name: 'lokasi', label: 'Venue / Lokasi', required: true },
                 { name: 'tanggal', label: 'Waktu Pelaksanaan', type: 'date', required: true },
+                { name: 'googleFormUrl', label: 'Google Form URL', required: false },
                 // 'pembicara' (ID Penanggung Jawab) removed because it's not relevant in the admin event form
                 { name: 'gambar', label: 'Poster Event (Format .jpg/.png)', type: 'file', required: true },
               ]}

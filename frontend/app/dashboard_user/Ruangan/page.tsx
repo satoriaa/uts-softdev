@@ -2,18 +2,20 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import io from 'socket.io-client';
-import Image from 'next/image'; // Perbaikan: Gunakan Next.js Image
+import Image from 'next/image'; 
 import { debounce } from '@/lib/rateLimit';
 
-import { ArrowRight, Clock, DoorOpen, MapPin, Search, Users } from 'lucide-react';
+import { ArrowRight, Clock, DoorOpen, MapPin, Search, Users, CalendarDays, X } from 'lucide-react';
 import api from '@/lib/axios';
 
 type BackendRuangStatus = 'pending' | 'tersedia' | 'tidak_tersedia';
+type RuangKategori = 'galeri' | 'studio' | 'ruangan';
 
 type BackendRuang = {
   _id: string;
   namaRuang: string;
   lantai: number;
+  kategori: RuangKategori;
   status: BackendRuangStatus;
   gambar?: string;
 };
@@ -23,6 +25,7 @@ type RoomUI = {
   name: string;
   capacityLabel: string;
   locationLabel: string;
+  kategori: RuangKategori;
   statusUI: 'Tersedia' | 'Booked' | 'Pending';
   isAvailable: boolean;
   image: string;
@@ -34,7 +37,9 @@ interface AxiosErrorResponse {
   response?: {
     data?: {
       message?: string;
+      error?: string;
     };
+    statusText?: string;
   };
   message?: string;
 }
@@ -54,6 +59,7 @@ const getImageUrl = (imagePath?: string) => {
 export default function PeminjamanRuanganPage() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<RuangKategori | ''>('');
 
   const [rooms, setRooms] = useState<RoomUI[]>([]);
   const [myAcceptedMap, setMyAcceptedMap] = useState<Record<string, string>>({});
@@ -63,6 +69,27 @@ export default function PeminjamanRuanganPage() {
   const [bookingRoomId, setBookingRoomId] = useState<string | null>(null);
   const [bookingRoomName, setBookingRoomName] = useState<string>('');
   const [bookingDate, setBookingDate] = useState('');
+
+  // Schedule View States
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleRoomName, setScheduleRoomName] = useState('');
+  const [scheduleData, setScheduleData] = useState<any[]>([]);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+
+  async function openScheduleModal(id: string, name: string) {
+    setScheduleRoomName(name);
+    setScheduleOpen(true);
+    setScheduleLoading(true);
+    try {
+      const res = await api.get(`/pinjaman/ruang/${id}`);
+      setScheduleData(res.data?.data || []);
+    } catch (e) {
+      alert('Gagal mengambil jadwal ruangan');
+      setScheduleOpen(false);
+    } finally {
+      setScheduleLoading(false);
+    }
+  }
 
   function openBookingModal(id: string, name: string) {
     setBookingRoomId(id);
@@ -80,7 +107,6 @@ export default function PeminjamanRuanganPage() {
       setBookingOpen(false);
       await fetchRooms();
     } catch (e) {
-      // Perbaikan: Assert tipe data error dari 'unknown' ke AxiosErrorResponse
       const err = e as AxiosErrorResponse;
       alert(err?.response?.data?.message || err.message || 'Gagal membuat booking');
     } finally {
@@ -93,7 +119,6 @@ export default function PeminjamanRuanganPage() {
     fetchMyBookings();
     const token = localStorage.getItem('token') || undefined;
     
-    // Perbaikan: Hindari tipe data explicit any pada inisialisasi socket
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let socket: any = null;
 
@@ -124,7 +149,6 @@ export default function PeminjamanRuanganPage() {
       });
     } catch (err) {}
 
-    // Perbaikan: Cleanup function dibuat lebih bersih dan jelas
     return () => {
       if (socket) {
         try {
@@ -178,8 +202,9 @@ export default function PeminjamanRuanganPage() {
         return {
           id: r._id,
           name: r.namaRuang,
-          capacityLabel: '-',
-          locationLabel: `Lantai ${r.lantai}`,
+          capacityLabel: '-', 
+          locationLabel: `${r.lantai}`,
+          kategori: r.kategori,
           statusUI,
           isAvailable: r.status === 'tersedia',
           image: getImageUrl(r.gambar),
@@ -189,7 +214,6 @@ export default function PeminjamanRuanganPage() {
 
       setRooms(mapped);
     } catch (e) {
-      // Perbaikan: Assert tipe data error dari 'unknown' ke AxiosErrorResponse
       const err = e as AxiosErrorResponse;
       const msg = err?.response?.data?.message || err.message || 'Gagal mengambil data ruangan';
       setError(msg);
@@ -206,39 +230,89 @@ export default function PeminjamanRuanganPage() {
   const filteredRooms = useMemo(() => {
     const q = debouncedQuery.trim().toLowerCase();
 
-    if (!q) return rooms;
     return rooms.filter((r) => {
-      return (
+      const matchesQuery = !q || (
         r.name.toLowerCase().includes(q) ||
         r.locationLabel.toLowerCase().includes(q) ||
         r.statusUI.toLowerCase().includes(q)
       );
+      
+      const matchesCategory = !selectedCategory || r.kategori === selectedCategory;
+      
+      return matchesQuery && matchesCategory;
     });
-  }, [debouncedQuery, rooms]);
+  }, [debouncedQuery, rooms, selectedCategory]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header & Search */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-        <div>
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase italic">
-            Pinjam Ruangan
-          </h2>
-          <div className="h-1.5 w-24 bg-[#EF6145] mt-2 rounded-full"></div>
-          <p className="text-gray-500 mt-4 font-medium italic">
-            Cari dan reservasi ruangan untuk kebutuhan acaramu.
-          </p>
+      <div className="flex flex-col gap-6 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase italic">
+              Pinjam Ruangan
+            </h2>
+            <div className="h-1.5 w-24 bg-[#EF6145] mt-2 rounded-full"></div>
+            <p className="text-gray-500 mt-4 font-medium italic">
+              Cari dan reservasi ruangan untuk kebutuhan acaramu.
+            </p>
+          </div>
+
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black" size={20} />
+            <input
+              type="text"
+              placeholder="Cari nama ruangan..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-black font-medium focus:ring-4 focus:ring-[#EF6145]/10 outline-none transition-all shadow-sm"
+            />
+          </div>
         </div>
 
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Cari nama ruangan..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-black font-medium focus:ring-4 focus:ring-[#EF6145]/10 outline-none transition-all shadow-sm"
-          />
+        {/* Category Filter */}
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm font-bold text-gray-600">Kategori:</span>
+          <button
+            onClick={() => setSelectedCategory('')}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+              selectedCategory === ''
+                ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Semua
+          </button>
+          <button
+            onClick={() => setSelectedCategory('galeri')}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all capitalize ${
+              selectedCategory === 'galeri'
+                ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Galeri
+          </button>
+          <button
+            onClick={() => setSelectedCategory('studio')}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all capitalize ${
+              selectedCategory === 'studio'
+                ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Studio
+          </button>
+          <button
+            onClick={() => setSelectedCategory('ruangan')}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all capitalize ${
+              selectedCategory === 'ruangan'
+                ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Ruangan
+          </button>
         </div>
       </div>
 
@@ -252,11 +326,11 @@ export default function PeminjamanRuanganPage() {
           return (
             <div 
               key={room.id}
-              className="group bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:translate-y-[-6px] transition-all duration-500"
+              className="group bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:translate-y-[-6px] transition-all duration-500 hover:rounded-[2.5rem]"
             >
               {/* Image Overlay */}
               <div className="relative h-56 overflow-hidden">
-                {/* Perbaikan: Mengganti <img> biasa dengan <Image /> milik Next.js */}
+                {/* Mengganti <img> biasa dengan <Image /> milik Next.js */}
                 <Image 
                   src={room.image} 
                   alt={room.name}
@@ -270,12 +344,8 @@ export default function PeminjamanRuanganPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 
                 <div className="absolute top-5 left-5">
-                  <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md border ${
-                    room.statusUI === 'Tersedia' 
-                    ? 'bg-emerald-500/80 border-emerald-400 text-white' 
-                    : room.statusUI === 'Booked' ? 'bg-rose-600/90 border-rose-500 text-white' : 'bg-amber-400/90 border-amber-300 text-white'
-                  }`}>
-                    {room.statusUI}
+                  <span className="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md border bg-emerald-500/80 border-emerald-400 text-white">
+                    Tersedia
                   </span>
                 </div>
 
@@ -288,61 +358,28 @@ export default function PeminjamanRuanganPage() {
 
               {/* Details */}
               <div className="p-7">
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center gap-3 text-gray-500">
-                    <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
-                      <Users size={16} />
-                    </div>
-                    <span className="text-sm font-bold text-gray-700">{room.capacityLabel} Orang</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-500">
-                    <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
-                      <MapPin size={16} />
-                    </div>
-                    <span className="text-sm font-bold text-gray-700 truncate">{room.locationLabel}</span>
-                  </div>
-                </div>
-
                 <p className="text-xs text-gray-400 font-medium mb-6 flex items-center gap-2">
                   <DoorOpen size={14} />
                   {room.locationLabel}
                 </p>
 
-                <button 
-                  disabled={room.statusUI === 'Booked'}
-                  onClick={() => openBookingModal(room.id, room.name)}
-                  className={`w-full py-4 rounded-2xl font-black uppercase tracking-[2px] text-xs flex items-center justify-center gap-2 transition-all shadow-lg ${
-                    room.statusUI === 'Tersedia'
-                    ? 'bg-[#EF6145] text-white shadow-[#EF6145]/20 hover:bg-[#d94e3d]'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                  }`}
-                >
-                  {room.statusUI === 'Tersedia' ? (
-                    <>
-                      Booking Sekarang
-                      <ArrowRight size={16} />
-                    </>
-                  ) : (
-                    'Booked'
-                  )}
-                </button>
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={() => openBookingModal(room.id, room.name)}
+                    className="w-full py-4 rounded-2xl font-black uppercase tracking-[2px] text-xs flex items-center justify-center gap-2 transition-all shadow-lg bg-[#EF6145] text-white shadow-[#EF6145]/20 hover:bg-[#d94e3d]"
+                  >
+                    Booking Sekarang
+                    <ArrowRight size={16} />
+                  </button>
 
-                {myAcceptedMap[room.id] && (
-                  <div className="mt-3">
-                    <button onClick={async () => {
-                      if (!confirm('Tandai peminjaman ini sebagai selesai?')) return;
-                      try {
-                        await api.put(`/pinjaman/${myAcceptedMap[room.id]}/finish`);
-                        alert('Peminjaman ditandai selesai. Terima kasih.');
-                        await fetchRooms();
-                        await fetchMyBookings();
-                      } catch (e) {
-                        const err = e as AxiosErrorResponse;
-                        alert(err?.response?.data?.message || err.message || 'Gagal menandai selesai');
-                      }
-                    }} className="w-full py-3 rounded-2xl font-black uppercase tracking-[2px] text-xs bg-emerald-600 text-white">Selesai</button>
-                  </div>
-                )}
+                  <button 
+                    onClick={() => openScheduleModal(room.id, room.name)}
+                    className="w-full py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-[#EF6145] bg-[#EF6145]/10 hover:bg-[#EF6145]/20"
+                  >
+                    <CalendarDays size={16} />
+                    Lihat Jadwal
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -352,12 +389,62 @@ export default function PeminjamanRuanganPage() {
         {bookingOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-bold mb-4">Booking: {bookingRoomName}</h3>
-              <label className="block text-sm font-bold mb-2">Tanggal Peminjaman</label>
-              <input type="date" className="w-full p-3 mb-4 border rounded-lg" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
+              <h3 className="text-lg font-bold mb-4 text-black">Booking: {bookingRoomName}</h3>
+              <label className="block text-sm font-bold mb-2 text-black">Tanggal Peminjaman</label>
+              <input type="date" className="w-full p-3 mb-4 border rounded-lg text-black" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
               <div className="flex gap-2 justify-end">
-                <button onClick={() => setBookingOpen(false)} className="px-4 py-2 rounded-lg border">Batal</button>
+                <button onClick={() => setBookingOpen(false)} className="px-4 py-2 rounded-lg border border-gray-300 text-black font-bold hover:bg-gray-50">Batal</button>
                 <button onClick={submitBooking} className="px-4 py-2 rounded-lg bg-[#EF6145] text-white font-bold">Kirim Booking</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Schedule Modal */}
+        {scheduleOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 tracking-tight">Jadwal Ruangan</h3>
+                  <p className="text-sm text-gray-500 font-medium">{scheduleRoomName}</p>
+                </div>
+                <button onClick={() => setScheduleOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+                {scheduleLoading ? (
+                  <div className="flex justify-center items-center py-10">
+                    <div className="w-8 h-8 border-4 border-[#EF6145] border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : scheduleData.length === 0 ? (
+                  <div className="text-center py-10">
+                    <CalendarDays size={48} className="mx-auto text-gray-300 mb-3" />
+                    <p className="text-sm font-bold text-gray-400">Belum ada yang membooking ruangan ini.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {scheduleData.map((s: any, idx: number) => (
+                      <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                          <Users size={18} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900">{s.userNama}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Tanggal: <span className="font-bold">{new Date(s.tanggalPinjam).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                          </p>
+                          <div className="mt-2">
+                            <span className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-lg ${s.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                              {s.status === 'terima' ? 'Disetujui' : 'Pending'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -369,7 +456,7 @@ export default function PeminjamanRuanganPage() {
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
               <Clock size={24} className="text-[#EF6145]" />
             </div>
-            <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Cek Jadwal Lain</span>
+            <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">Tidak ada data lagi</span>
           </div>
         )}
       </div>

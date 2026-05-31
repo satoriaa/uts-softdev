@@ -8,23 +8,25 @@ import {
   LayoutDashboard,
   ImageIcon,
   Box,
+  Briefcase,
   Calendar,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
   LogOut,
-  
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import NotificationBell from '@/app/components/NotificationBell'
+import Footer from '@/app/components/Footer'
 
-// ================= MENU =================
+// MENU 
 const MENU_ITEMS = [
   { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
   { name: 'Showcase', href: '/dashboard_user/showcase', icon: ImageIcon },
   { name: 'Ruangan', href: '/dashboard_user/Ruangan', icon: Box },
-  { name: 'Event', href: '/dashboard_user/event', icon: Calendar },
+  { name: 'Activity', href: '/dashboard_user/event', icon: Briefcase },
+  { name: 'Proker', href: '/dashboard_user/proker', icon: Calendar },
   { name: 'Profil', href: '/dashboard_user/profil', icon: User },
 ] as const
 
@@ -34,7 +36,7 @@ const INVALID_ROUTES = [
   '/dashboard_admin/users',
 ]
 
-// ================= NAV ITEM =================
+// NAV ITEM
 type NavItemProps = {
   item: (typeof MENU_ITEMS)[number]
   isActive: boolean
@@ -62,7 +64,7 @@ function NavItem({ item, isActive, isExpanded }: NavItemProps) {
   )
 }
 
-// ================= MAIN LAYOUT =================
+// MAIN LAYOUT 
 export default function DashboardUserLayout({
   children,
 }: {
@@ -72,33 +74,76 @@ export default function DashboardUserLayout({
   const pathname = usePathname()
   const { token, user, logout } = useAuthStore()
 
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [isReady, setIsReady] = useState(false)
+  const [isHydrating, setIsHydrating] = useState(false)
   const [localToken, setLocalToken] = useState<string | null>(null)
 
-  // ================= FIX LOCALSTORAGE =================
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
+
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+
+
+
+  // FIX LOCALSTORAGE 
   useEffect(() => {
     setLocalToken(localStorage.getItem('token'))
   }, [])
 
   useEffect(() => {
-    setIsReady(true)
+    const run = async () => {
+      setIsReady(true)
 
-    if (!token && !localToken) {
-      router.replace('/login/user')
-      return
+      const stored = token || localToken
+      if (!stored) {
+        router.replace('/login/user')
+        return
+      }
+
+      // Hydrate user on refresh if token exists but user is not loaded yet
+      if (!user && stored && !isHydrating) {
+        setIsHydrating(true)
+        try {
+          const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+          const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${stored}` },
+          })
+          if (res.ok) {
+            const json = await res.json()
+            const setAuth = useAuthStore.getState().setAuth
+            // expected response shape: { data: userObject }
+            if (json?.data) setAuth(json.data, stored)
+          }
+        } catch (e) {
+          // ignore
+        } finally {
+          setIsHydrating(false)
+        }
+      }
+
+      const hydratedUser = useAuthStore.getState().user
+      if (!hydratedUser) {
+        // Don’t bounce to login while refresh/hydration is still in progress
+        if (isHydrating) return
+        router.replace('/dashboard_user')
+        return
+      }
+
+
+      if (hydratedUser.role !== 'student') {
+        router.replace('/login/user')
+        return
+      }
+
+
+      if (INVALID_ROUTES.includes(pathname)) {
+        router.replace('/dashboard_user')
+      }
     }
 
-    if (user && user.role !== 'student') {
-      router.replace('/login/user')
-      return
-    }
+    run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, localToken, pathname, router, user, isHydrating])
 
-    if (INVALID_ROUTES.includes(pathname)) {
-      router.replace('/dashboard_user')
-    }
-  }, [token, localToken, pathname, router, user])
 
   const activeMenu = useMemo(
     () => MENU_ITEMS.find((item) => item.href === pathname),
@@ -117,7 +162,7 @@ export default function DashboardUserLayout({
   return (
     <div className="flex min-h-screen bg-[#FDFDFD]">
 
-      {/* ===== MOBILE OVERLAY ===== */}
+      {/* MOBILE OVERLAY */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -125,7 +170,7 @@ export default function DashboardUserLayout({
         />
       )}
 
-      {/* ===== SIDEBAR ===== */}
+      {/* SIDEBAR */}
       <aside
         className={`
           flex flex-col bg-[#1A1A1A] text-white transition-all duration-500
@@ -196,24 +241,31 @@ export default function DashboardUserLayout({
   </div>
 
     <div className="flex items-center gap-4">
-    <NotificationBell />
+      <div className="text-black">
+        <NotificationBell />
+      </div>
 
     <div className="h-6 w-px bg-gray-200"/>
 
+
+
     <div className="text-right hidden sm:block">
-      <p className="text-sm font-semibold">{user?.nama || 'User'}</p>
+      <p className="text-sm font-semibold text-gray-900">{user?.nama || 'User'}</p>
       <span className="text-xs text-gray-400">Student</span>
     </div>
 
-    <button onClick={handleLogout} className="p-2 hover:bg-red-50 rounded-lg">
+    <button onClick={handleLogout} className="p-2 hover:bg-red-50 rounded-lg text-gray-900">
       <LogOut size={18}/>
     </button>
   </div>
 </header>
 
         {/* CONTENT (SCROLL DI SINI) */}
-        <main className="flex-1 overflow-y-auto bg-[#FAFAFA] p-6">
-          {children}
+        <main className="flex-1 overflow-y-auto bg-[#FAFAFA] flex flex-col">
+          <div className="p-6 flex-1">
+            {children}
+          </div>
+          <Footer />
         </main>
       </div>
     </div>

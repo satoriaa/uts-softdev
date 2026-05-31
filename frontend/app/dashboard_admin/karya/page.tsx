@@ -88,6 +88,13 @@ export default function KaryaPage() {
                   type: 'file', 
                   required: true 
                 },
+                {
+                  name: 'kategori',
+                  label: 'Kategori Karya',
+                  type: 'select',
+                  required: true,
+                  options: ['sketsa','lukisan','digital art','tugas','desain','fotografi','nirmana','project'],
+                },
               ]}
             />
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Home, CheckCircle2, Clock, ShieldCheck, Map } from 'lucide-react';
+import { Home, CheckCircle2, Clock, ShieldCheck, Map, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import axios from '@/lib/axios';
 
@@ -51,7 +51,16 @@ function AdminValidation() {
 
   return (
     <div>
-      <div className="mb-4 text-sm text-gray-500">Daftar permintaan pinjaman (klik Terima/Tolak untuk validasi)</div>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-sm text-gray-500">Daftar permintaan pinjaman (klik Terima/Tolak untuk validasi)</div>
+        <button
+          onClick={fetchItems}
+          disabled={loading}
+          className="p-2.5 border border-gray-100 rounded-2xl text-gray-400 hover:bg-gray-50 transition active:rotate-180"
+        >
+          <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+        </button>
+      </div>
       <div className="space-y-3">
         {loading && <div className="text-sm text-gray-400">Memuat...</div>}
         {items.map(it => (

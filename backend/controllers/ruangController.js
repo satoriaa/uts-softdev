@@ -22,8 +22,6 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const payload = { ...req.body };
-    
-    if (payload.lantai) payload.lantai = Number(payload.lantai);
 
     // Simpan URL Cloudinary (jangan path lokal)
     if (req.file) {
@@ -40,7 +38,6 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const payload = { ...req.body };
-    if (payload.lantai) payload.lantai = Number(payload.lantai);
 
     // Update URL Cloudinary (jangan path lokal)
     if (req.file) {

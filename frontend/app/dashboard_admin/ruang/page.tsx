@@ -75,7 +75,14 @@ export default function RuangPage() {
                 {
                   name: 'lantai',
                   label: 'Posisi Lantai',
-                  type: 'number',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'kategori',
+                  label: 'Kategori Ruangan',
+                  type: 'select',
+                  options: ['galeri', 'studio', 'ruangan'],
                   required: true,
                 },
                 {

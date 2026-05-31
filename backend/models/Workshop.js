@@ -8,9 +8,9 @@ const workshopSchema = new mongoose.Schema(
     tempat: { type: String, required: true },
     pendaftar: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     gambar: { type: String },
+    googleFormUrl: { type: String },
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model('Workshop', workshopSchema);
-
