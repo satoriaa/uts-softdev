@@ -295,9 +295,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="text-[10px] font-black text-[#EF6145] uppercase">Master Admin</div>
               </div>
 
-              <div className="h-11 w-11 bg-gradient-to-tr from-[#121212] to-[#333] rounded-2xl flex items-center justify-center text-white shadow-xl">
-                <User size={22} />
+              <div className="h-11 w-11 bg-gradient-to-tr from-[#121212] to-[#333] rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden">
+                {user?.gambar ? (
+                  // gambar bisa berupa secure_url (URL lengkap) atau path backend
+                  <img
+                    src={
+                      user.gambar.startsWith('http')
+                        ? user.gambar
+                        : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '')}/${String(user.gambar).replace(/^\//, '')}`
+                    }
+                    alt="Profil"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User size={22} />
+                )}
               </div>
+
 
               <button 
                 onClick={handleLogout}

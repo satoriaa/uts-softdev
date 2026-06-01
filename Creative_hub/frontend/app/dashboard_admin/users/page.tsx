@@ -4,7 +4,28 @@ import CrudPage from '@/app/components/CrudPage';
 import { useEffect } from 'react';
 import { ShieldCheck, UserCog, CloudUpload, Fingerprint, Mail, IdCard } from 'lucide-react';
 
+import { useAuthStore } from '@/store/authStore';
+
 export default function UsersPage() {
+
+  const refreshAdminMe = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json?.data) useAuthStore.getState().setAuth(json.data, token);
+    } catch (e) {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     const w = (window as any);
     if (w.cloudinary && w.cloudinary.createUploadWidget) return;
@@ -117,9 +138,12 @@ export default function UsersPage() {
 
           <div className="p-6 md:p-12">
             <CrudPage
-              title="" 
+              title=""
               endpoint="/users"
+              onAfterSuccess={refreshAdminMe}
               fields={[
+
+
                 { name: 'nama', label: 'Nama Lengkap', required: true },
                 { name: 'nim', label: 'Nomor Induk Mahasiswa (NIM)', required: true },
                 { name: 'jurusan', label: 'Program Studi / Jurusan', required: true },

@@ -17,6 +17,7 @@ type CrudPageProps = {
   endpoint: string;
   title?: string;
   fields: Field[];
+  onAfterSuccess?: () => void;
 };
 
 // Helper untuk memastikan gambar terbaca dari URL backend
@@ -27,7 +28,7 @@ const getImageUrl = (imagePath?: string) => {
   return `${baseUrl.replace(/\/$/, '')}/${imagePath.replace(/^\//, '')}`;
 };
 
-export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
+export default function CrudPage({ endpoint, title, fields, onAfterSuccess }: CrudPageProps) {
   type Item = {
     _id: string;
     [key: string]: any;
@@ -235,6 +236,7 @@ export default function CrudPage({ endpoint, title, fields }: CrudPageProps) {
       setEditing(null);
       setForm({});
       setPreviewUrls({});
+      await Promise.resolve(onAfterSuccess?.());
     } catch (err: any) {
       const msg = err?.response?.data?.message || err.message || "Gagal menyimpan data";
       showNotif(msg, "error");

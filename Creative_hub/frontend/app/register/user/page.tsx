@@ -31,8 +31,15 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (form.password !== form.confirmPassword) {
       alert('Password dan Konfirmasi Password tidak cocok!');
+      return;
+    }
+
+    // Validasi NIM harus diawali 625
+    if (!form.nim.startsWith('625')) {
+      alert('NIM harus diawali dengan 625');
       return;
     }
 

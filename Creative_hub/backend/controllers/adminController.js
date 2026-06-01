@@ -42,10 +42,16 @@ exports.updateAdmin = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Admin not found' });
     }
 
-    const { nama, email, password } = req.body;
+    const { nama, email, password, gambar } = req.body;
     if (nama) admin.nama = nama;
     if (email) admin.email = email;
     if (password) admin.password = password;
+
+    // dukung update foto profil dari Cloudinary widget (secure_url string)
+    // atau dari upload file biasa (jika ada)
+    if (gambar) admin.gambar = gambar;
+    if (req.file) admin.gambar = req.file.secure_url || req.file.path;
+
 
     await admin.save();
     res.json({ success: true, data: { _id: admin._id, nama: admin.nama, email: admin.email, role: admin.role } });

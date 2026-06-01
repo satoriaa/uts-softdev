@@ -53,7 +53,15 @@ exports.updateUser = async (req, res) => {
     if (password) user.password = password;
     if (role && req.userType === 'admin') user.role = role;
 
-    if (req.file) user.gambar = req.file.secure_url || req.file.path;
+    // dukung 2 sumber gambar:
+    // 1) req.file dari multer (upload file biasa)
+    // 2) req.body.gambar dari Cloudinary widget (secure_url string dari hidden input)
+    if (req.file) {
+      user.gambar = req.file.secure_url || req.file.path;
+    } else if (req.body?.gambar) {
+      user.gambar = req.body.gambar;
+    }
+
 
     await user.save();
     const updated = await User.findById(user._id).select('-password');

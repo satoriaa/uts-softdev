@@ -27,6 +27,15 @@ const toAdminResponse = (admin) => ({
 exports.register = async (req, res) => {
   try {
     const { nama, nim, jurusan, email, password, role } = req.body;
+
+    // Validasi NIM harus diawali 625
+    if (!nim || typeof nim !== 'string' || !nim.startsWith('625')) {
+      return res.status(400).json({
+        success: false,
+        message: 'NIM harus diawali dengan 625',
+      });
+    }
+
     const userExists = await User.findOne({ email });
     const adminExists = await Admin.findOne({ email });
     if (userExists || adminExists) {
@@ -116,9 +125,15 @@ exports.updateMe = async (req, res) => {
     if (typeof email !== 'undefined') req.user.email = email;
     if (typeof password !== 'undefined' && password.trim() !== '') req.user.password = password;
 
+    // dukung 2 sumber gambar:
+    // 1) req.file dari multer
+    // 2) req.body.gambar dari Cloudinary widget (secure_url string dari hidden input)
     if (req.file) {
       req.user.gambar = req.file.secure_url || req.file.path;
+    } else if (typeof req.body?.gambar !== 'undefined' && req.body.gambar) {
+      req.user.gambar = req.body.gambar;
     }
+
 
     await req.user.save();
     const user = await User.findById(req.user._id).select('-password');

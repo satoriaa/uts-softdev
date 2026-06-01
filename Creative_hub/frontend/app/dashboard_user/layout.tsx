@@ -20,7 +20,7 @@ import { useAuthStore } from '@/store/authStore'
 import NotificationBell from '@/app/components/NotificationBell'
 import Footer from '@/app/components/Footer'
 
-// MENU 
+// MENU (Tetap Menu User Asli)
 const MENU_ITEMS = [
   { name: 'Home', href: '/dashboard_user', icon: LayoutDashboard },
   { name: 'Showcase', href: '/dashboard_user/showcase', icon: ImageIcon },
@@ -36,35 +36,6 @@ const INVALID_ROUTES = [
   '/dashboard_admin/users',
 ]
 
-// NAV ITEM
-type NavItemProps = {
-  item: (typeof MENU_ITEMS)[number]
-  isActive: boolean
-  isExpanded: boolean
-}
-
-function NavItem({ item, isActive, isExpanded }: NavItemProps) {
-  const Icon = item.icon
-
-  return (
-    <Link
-      href={item.href}
-      title={!isExpanded ? item.name : undefined}
-      className={`
-        group relative flex items-center rounded-xl transition-all duration-300
-        ${isExpanded ? 'gap-4 px-4 py-3' : 'justify-center p-3'}
-        ${isActive
-          ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/30'
-          : 'text-gray-400 hover:bg-white/5 hover:text-white'}
-      `}
-    >
-      <Icon size={20} />
-      {isExpanded && <span className="text-sm font-medium">{item.name}</span>}
-    </Link>
-  )
-}
-
-// MAIN LAYOUT 
 export default function DashboardUserLayout({
   children,
 }: {
@@ -77,63 +48,74 @@ export default function DashboardUserLayout({
   const [isHydrating, setIsHydrating] = useState(false)
   const [localToken, setLocalToken] = useState<string | null>(null)
 
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
-
+  // Mengikuti nama state & default value layout admin (true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [isReady, setIsReady] = useState(false)
 
-
-
-  // FIX LOCALSTORAGE 
+  // Ambil token dari localStorage (agar saat refresh tetap stay)
   useEffect(() => {
-    setLocalToken(localStorage.getItem('token'))
+    const t = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    setLocalToken(t)
   }, [])
 
   useEffect(() => {
     const run = async () => {
-      setIsReady(true)
+      const stored = localToken || token
 
-      const stored = token || localToken
+      // belum ada token => tetap logout & redirect
       if (!stored) {
+        logout()
         router.replace('/login/user')
         return
       }
 
-      // Hydrate user on refresh if token exists but user is not loaded yet
-      if (!user && stored && !isHydrating) {
+      // hydrate user hanya sekali saat user belum ada
+      if (!user && !isHydrating) {
         setIsHydrating(true)
         try {
           const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
           const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
             headers: { Authorization: `Bearer ${stored}` },
           })
+
           if (res.ok) {
             const json = await res.json()
             const setAuth = useAuthStore.getState().setAuth
-            // expected response shape: { data: userObject }
             if (json?.data) setAuth(json.data, stored)
+          } else {
+            // token invalid/expired
+            logout()
+            localStorage.removeItem('token')
+            router.replace('/login/user')
+            return
           }
-        } catch (e) {
-          // ignore
+        } catch {
+          logout()
+          localStorage.removeItem('token')
+          router.replace('/login/user')
+          return
         } finally {
           setIsHydrating(false)
         }
       }
 
+      // setelah (atau jika) hydrate, validasi role
       const hydratedUser = useAuthStore.getState().user
       if (!hydratedUser) {
-        // Don’t bounce to login while refresh/hydration is still in progress
+        // hindari redirect berulang saat masih proses hydration
         if (isHydrating) return
-        router.replace('/dashboard_user')
-        return
-      }
-
-
-      if (hydratedUser.role !== 'student') {
+        logout()
+        localStorage.removeItem('token')
         router.replace('/login/user')
         return
       }
 
+      if (hydratedUser.role !== 'student') {
+        logout()
+        localStorage.removeItem('token')
+        router.replace('/login/user')
+        return
+      }
 
       if (INVALID_ROUTES.includes(pathname)) {
         router.replace('/dashboard_user')
@@ -141,8 +123,8 @@ export default function DashboardUserLayout({
     }
 
     run()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, localToken, pathname, router, user, isHydrating])
+  }, [localToken, token, pathname, router, user, isHydrating, logout])
+
 
 
   const activeMenu = useMemo(
@@ -156,16 +138,13 @@ export default function DashboardUserLayout({
     router.push('/login/user')
   }
 
-  // Always render the layout root to avoid hydration mismatches between server and client.
-  // Redirects happen inside useEffect after mount.
-
   return (
-    <div className="flex min-h-screen bg-[#FDFDFD]">
+    <div className="flex min-h-screen bg-[#FDFDFB]">
 
-      {/* MOBILE OVERLAY */}
+      {/* OVERLAY MOBILE */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-[60] lg:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -173,96 +152,126 @@ export default function DashboardUserLayout({
       {/* SIDEBAR */}
       <aside
         className={`
-          flex flex-col bg-[#1A1A1A] text-white transition-all duration-500
+          bg-[#121212] text-white flex flex-col transition-all duration-500 ease-in-out shadow-2xl
+          h-screen
 
-          /* MOBILE MODE */
-          ${isMobileOpen ? 'fixed inset-y-0 left-0 z-50 w-72 p-6' : ''}
+          ${isMobileOpen 
+            ? 'fixed inset-y-0 left-0 z-[70] w-72 p-6 translate-x-0' 
+            : 'fixed inset-y-0 left-0 z-[70] w-72 p-6 -translate-x-full lg:static lg:translate-x-0'
+          }
 
-          /* DESKTOP MODE */
-          ${!isMobileOpen && (isSidebarExpanded ? 'w-72 p-6' : 'w-20 p-3')}
+          ${!isMobileOpen && (isSidebarOpen ? 'lg:w-72 lg:p-6' : 'lg:w-24 lg:p-4')}
         `}
       >
-        {/* LOGO */}
-        <div className="mb-8 flex items-center justify-between">
-          {isSidebarExpanded ? (
-            <h1 className="font-bold">Creative Hub</h1>
+        {/* HEADER SIDEBAR */}
+        <div className={`flex items-center mb-12 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          {isSidebarOpen ? (
+            <div className="flex items-center gap-3 animate-in fade-in duration-700">
+              <div className="h-9 w-9 bg-[#EF6145] rounded-xl flex items-center justify-center font-black text-white shadow-lg rotate-3">C</div>
+              <div className="overflow-hidden">
+                <h1 className="text-lg font-black tracking-tighter leading-none">CREATIVE HUB</h1>
+                <p className="text-[#EF6145] text-[9px] mt-1 uppercase font-black tracking-[0.2em]">FSRD UNTAR</p>
+              </div>
+            </div>
           ) : (
-            <span className="font-bold">C</span>
+            <div className="h-10 w-10 bg-[#EF6145] rounded-xl flex items-center justify-center font-bold text-white shadow-lg hover:rotate-12 transition-transform cursor-pointer">C</div>
           )}
-
-          <button
-            onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden"
-          >
-            <X size={20} />
+          <button onClick={() => setIsMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
+            <X size={24} />
           </button>
         </div>
 
-        {/* MENU */}
-        <nav className="flex flex-col gap-2 overflow-y-auto">
-          {MENU_ITEMS.map((item) => (
-            <NavItem
-              key={item.href}
-              item={item}
-              isActive={pathname === item.href}
-              isExpanded={isSidebarExpanded}
-            />
-          ))}
+        {/* NAVIGATION */}
+        <nav className="flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar pb-10">
+          {MENU_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center transition-all duration-300 rounded-2xl relative 
+                  ${isSidebarOpen ? 'gap-4 px-4 py-3.5' : 'justify-center p-4'} 
+                  ${isActive 
+                    ? 'bg-[#EF6145] text-white shadow-lg shadow-[#EF6145]/20' 
+                    : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+              >
+                <Icon size={isActive ? 22 : 20} />
+                {isSidebarOpen && (
+                  <span className={`text-sm font-bold whitespace-nowrap transition-transform duration-300 ${isActive ? 'translate-x-1' : ''}`}>
+                    {item.name}
+                  </span>
+                )}
+                {!isSidebarOpen && isActive && (
+                  <div className="absolute right-0 w-1 h-6 bg-[#EF6145] rounded-l-full" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* COLLAPSE BUTTON */}
+        {/* TOGGLE BUTTON */}
         <button
-          onClick={() => setIsSidebarExpanded((prev) => !prev)}
-          className="hidden lg:flex mt-auto justify-center p-2 hover:bg-white/10 rounded-lg"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="hidden lg:flex mt-auto items-center justify-center h-12 w-full bg-white/5 hover:bg-white/10 rounded-2xl text-gray-400 hover:text-white transition-all border border-white/5"
         >
-          {isSidebarExpanded ? <ChevronLeft /> : <ChevronRight />}
+          {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </button>
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <div className="flex flex-1 flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
 
         {/* HEADER */}
-        <header className="flex items-center justify-between px-6 h-16 
-  bg-white/80 backdrop-blur-xl border-b border-gray-100 
-  sticky top-0 z-30">
+        <header className="bg-white/70 backdrop-blur-xl px-6 lg:px-10 py-5 flex justify-between items-center sticky top-0 z-[40] border-b border-gray-100">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="lg:hidden p-2.5 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="hidden md:block">
+              <h1 className="text-xl font-black text-gray-900 tracking-tight">
+                {activeMenu?.name.toUpperCase() || 'HOME'}
+              </h1>
+              <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+                Student Center
+              </p>
+            </div>
+          </div>
 
-  <div className="flex items-center gap-4">
-    <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
-      <Menu size={20}/>
-    </button>
+          <div className="flex items-center gap-3 lg:gap-6">
+            <div className="hidden sm:flex items-center gap-2 mr-2">
+              <NotificationBell />
+            </div>
 
-    <div className="flex flex-col">
-      <span className="text-xs text-gray-400">Dashboard</span>
-      <span className="font-semibold text-gray-900">
-        {activeMenu?.name || 'Home'}
-      </span>
-    </div>
-  </div>
+            <div className="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
 
-    <div className="flex items-center gap-4">
-      <div className="text-black">
-        <NotificationBell />
-      </div>
+            <div className="flex items-center gap-4 pl-2">
+              <div className="text-right hidden sm:block">
+                <div className="text-sm font-black text-gray-900">{user?.nama || 'Creative Student'}</div>
+                <div className="text-[10px] font-black text-[#EF6145] uppercase">Student</div>
+              </div>
 
-    <div className="h-6 w-px bg-gray-200"/>
+              {/* Avatar Box Gradasi Hitam Khas Admin */}
+              <div className="h-11 w-11 bg-gradient-to-tr from-[#121212] to-[#333] rounded-2xl flex items-center justify-center text-white shadow-xl">
+                <User size={22} />
+              </div>
 
+              <button
+                onClick={handleLogout}
+                className="ml-2 p-2.5 text-gray-400 hover:text-[#EF6145] hover:bg-[#EF6145]/5 rounded-xl transition-colors"
+              >
+                <LogOut size={22} />
+              </button>
+            </div>
+          </div>
+        </header>
 
-
-    <div className="text-right hidden sm:block">
-      <p className="text-sm font-semibold text-gray-900">{user?.nama || 'User'}</p>
-      <span className="text-xs text-gray-400">Student</span>
-    </div>
-
-    <button onClick={handleLogout} className="p-2 hover:bg-red-50 rounded-lg text-gray-900">
-      <LogOut size={18}/>
-    </button>
-  </div>
-</header>
-
-        {/* CONTENT (SCROLL DI SINI) */}
-        <main className="flex-1 overflow-y-auto bg-[#FAFAFA] flex flex-col">
-          <div className="p-6 flex-1">
+        {/* CONTENT */}
+        <main className="flex-1 overflow-y-auto bg-[#FDFDFB] flex flex-col">
+          <div className="p-6 lg:p 20max-w-7xl mx-auto w-full flex-1">
             {children}
           </div>
           <Footer />
