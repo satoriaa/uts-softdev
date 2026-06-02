@@ -71,20 +71,56 @@ Aplikasi akan berjalan di **http://localhost:3000**
 
 ## API Endpoints
 
+Catatan format:
+- Semua respons umumnya berbentuk JSON dengan field `success` dan (untuk list) `data: [...]`.
+- Untuk endpoint admin-only, gunakan header `Authorization: Bearer <token>`.
+
 | Endpoint | Method | Keterangan |
 |----------|--------|------------|
-| `/api/auth/register` | POST | Register user |
-| `/api/auth/login` | POST | Login user |
-| `/api/users` | GET/POST/PUT/DELETE | Kelola users |
-| `/api/karya` | GET/POST/PUT/DELETE | Kelola karya |
-| `/api/ruang` | GET/POST/PUT/DELETE | Kelola ruang |
-| `/api/pinjaman` | GET/POST/PUT/DELETE | Kelola pinjaman |
-| `/api/event` | GET/POST/PUT/DELETE | Kelola event |
-| `/api/proker` | GET/POST/PUT/DELETE | Kelola proker |
-| `/api/lomba` | GET/POST/PUT/DELETE | Kelola lomba |
-| `/api/tenant` | GET/POST/PUT/DELETE | Kelola tenant |
-| `/api/workshop` | GET/POST/PUT/DELETE | Kelola workshop |
-| `/api/majalah` | GET/POST/PUT/DELETE | Kelola majalah |
+| `/api/auth/register` | POST | Register user (student) |
+| `/api/auth/admin/register` | POST | Register admin |
+| `/api/auth/login` | POST | Login user (student) |
+| `/api/auth/admin/login` | POST | Login admin |
+| `/api/auth/me` | GET | Ambil data user/admin yang sedang login |
+| `/api/auth/me` | PUT | Update profil user/admin (support upload gambar field `gambar`) |
+| `/api/auth/reset-password` | POST | Reset password (user/admin) |
+| `/api/users` | GET | List users (admin-only) |
+| `/api/users` | POST | Create user (admin-only) |
+| `/api/users/:id` | GET | Detail user |
+| `/api/users/:id` | PUT | Update user |
+| `/api/users/:id` | DELETE | Hapus user (admin-only) |
+| `/api/karya` | GET | List karya |
+| `/api/karya` | POST | Create karya (upload `gambar` via Cloudinary) |
+| `/api/karya/:id` | GET | Detail karya |
+| `/api/karya/:id` | PUT | Update karya (upload `gambar` via Cloudinary) |
+| `/api/karya/:id/like` | POST | Like karya (student-only/protected) |
+| `/api/karya/:id/like` | DELETE | Un-like karya |
+| `/api/karya/:id` | DELETE | Hapus karya |
+| `/api/ruang` | GET | List ruang |
+| `/api/ruang` | POST | Create ruang (admin-only) |
+| `/api/ruang/:id` | GET | Detail ruang |
+| `/api/ruang/:id` | PUT | Update ruang (admin-only) |
+| `/api/ruang/:id` | DELETE | Hapus ruang (admin-only) |
+| `/api/pinjaman` | GET | List pinjaman (admin-only via route protect) |
+| `/api/pinjaman/ruang/:ruangId` | GET | Pinjaman untuk ruang tertentu |
+| `/api/pinjaman/priority` | GET | Ambil pending dengan prioritas tertinggi |
+| `/api/pinjaman` | POST | Buat pinjaman (student-only via protect) |
+| `/api/pinjaman/:id` | GET | Detail pinjaman |
+| `/api/pinjaman/:id` | PUT | Update pinjaman (admin-only via authorizeAdmin) |
+| `/api/pinjaman/:id/ack` | PUT | Acknowledge pinjaman |
+| `/api/pinjaman/:id/finish` | PUT | Finish pinjaman |
+| `/api/pinjaman/:id` | DELETE | Hapus pinjaman (admin-only) |
+| `/api/event` | GET | List event |
+| `/api/event` | POST | Create event (admin-only, upload `gambar` via Cloudinary) |
+| `/api/event/:id` | GET | Detail event |
+| `/api/event/:id` | PUT | Update event (admin-only, upload `gambar` via Cloudinary) |
+| `/api/event/:id` | DELETE | Hapus event (admin-only) |
+| `/api/proker` | GET/POST/PUT/DELETE | CRUD proker |
+| `/api/lomba` | GET/POST/PUT/DELETE | CRUD lomba |
+| `/api/tenant` | GET/POST/PUT/DELETE | CRUD tenant |
+| `/api/workshop` | GET/POST/PUT/DELETE | CRUD workshop |
+| `/api/majalah` | GET/POST/PUT/DELETE | CRUD majalah |
+
 
 ---
 
