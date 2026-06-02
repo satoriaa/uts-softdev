@@ -36,14 +36,13 @@ export default function DashboardHome() {
   const fetchApprovals = async () => {
     setLoadingApprovals(true);
     try {
-      const [pinjamanRes, usersRes] = await Promise.all([
-        api.get('/pinjaman').catch(() => ({ data: { data: [] } })),
+        const [pinjamanRes, usersRes] = await Promise.all([
+        api.get('/pinjaman/priority').catch(() => ({ data: { data: [] } })),
         api.get('/users').catch(() => ({ data: { data: [] } }))
       ]);
       
       const pinjamanData = (pinjamanRes.data?.data || [])
-        .filter((item: any) => item.status === 'pending')
-        .slice(0, 5)
+        .slice(0, 2)
         .map((item: any) => ({
           _id: item._id,
           type: 'pinjaman',

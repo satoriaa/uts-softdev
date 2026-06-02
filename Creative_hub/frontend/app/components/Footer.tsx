@@ -81,7 +81,7 @@ export default function Footer() {
             <div className="space-y-2 text-sm">
               <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
                 <span className="font-semibold text-white/90">Email:</span><br />
-                fsrd@untar.ac.id
+                fsrduntar.bem@gmail.com
               </p>
               <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
                 <span className="font-semibold text-white/90">Phone:</span><br />

@@ -290,6 +290,26 @@ exports.acknowledge = async (req, res) => {
 };
 
 // Owner marks booking as finished. This will set status='selesai' and free the room
+exports.getTopPendingPriority = async (req, res) => {
+  try {
+    const data = await PinjamanRuang.find({ status: 'pending' })
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .populate('ruang', 'namaRuang')
+      .populate('user', 'nama nim');
+
+    const normalized = data.map((d) => ({
+      ...d.toObject(),
+      userNama: d.userNama || d.user?.nama,
+      userNim: d.userNim || d.user?.nim,
+    }));
+
+    res.json({ success: true, count: normalized.length, data: normalized });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.finish = async (req, res) => {
   try {
     const id = req.params.id;
