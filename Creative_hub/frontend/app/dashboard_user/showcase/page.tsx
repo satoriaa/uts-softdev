@@ -199,7 +199,8 @@ const fetchPage = async (nextOffset: number, replace: boolean) => {
       }
       setError(null);
 
-      const res = await fetch(`http://localhost:5000/api/karya?limit=${PAGE_SIZE}&offset=${nextOffset}`, {
+      const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+      const res = await fetch(`${base}/api/karya?limit=${PAGE_SIZE}&offset=${nextOffset}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -288,7 +289,8 @@ const fetchPage = async (nextOffset: number, replace: boolean) => {
     setPendingMap((prev) => ({ ...prev, [serverId]: true }));
 
     try {
-      const url = `http://localhost:5000/api/karya/${serverId}/like`;
+      const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+      const url = `${base}/api/karya/${serverId}/like`;
       const res = await fetch(url, {
         method: alreadyLiked ? 'DELETE' : 'POST',
         headers: {
