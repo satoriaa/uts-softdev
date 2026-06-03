@@ -125,6 +125,47 @@ export default function DashboardUserLayout({
     run()
   }, [localToken, token, pathname, router, user, isHydrating, logout])
 
+  // Revalidate berkala agar jika token expired/logout di background bisa tertangkap sebelum halaman "rusak"
+  useEffect(() => {
+    const intervalMs = 4 * 60 * 1000 // 4 menit
+    let t: ReturnType<typeof setInterval> | null = null
+
+    const revalidate = async () => {
+      const stored = localStorage.getItem('token')
+      if (!stored) return
+
+      try {
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${stored}` },
+        })
+
+        // 401/403 -> token expired/invalid -> logout
+        if (res.status === 401 || res.status === 403) {
+          logout()
+          localStorage.removeItem('token')
+          router.replace('/login/user')
+          return
+        }
+      } catch {
+        // kalau server error sementara, jangan paksa logout
+      }
+    }
+
+    // start hanya jika token ada
+    if (typeof window !== 'undefined' && (localToken || token)) {
+      // jalankan sekali saat mount
+      revalidate()
+      t = setInterval(revalidate, intervalMs)
+    }
+
+    return () => {
+      if (t) clearInterval(t)
+    }
+  }, [localToken, token, logout, router])
+
+
+
   const activeMenu = useMemo(
     () => MENU_ITEMS.find((item) => item.href === pathname),
     [pathname]

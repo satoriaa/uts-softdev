@@ -83,6 +83,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
   }, [user, router]);
 
+  // Revalidate berkala untuk admin
+  useEffect(() => {
+    const intervalMs = 4 * 60 * 1000 // 4 menit
+    let t: ReturnType<typeof setInterval> | null = null
+
+    const revalidate = async () => {
+      const stored = localStorage.getItem('token');
+      if (!stored) return;
+
+      try {
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${stored}` },
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          logout();
+          localStorage.removeItem('token');
+          router.replace('/login/admin');
+          return;
+        }
+      } catch {
+        // server error sementara: jangan paksa logout
+      }
+    };
+
+    if (typeof window !== 'undefined' && token) {
+      revalidate();
+      t = setInterval(revalidate, intervalMs);
+    }
+
+    return () => {
+      if (t) clearInterval(t);
+    };
+  }, [token, logout, router]);
+
+
 
   useEffect(() => {
     let mounted = true;
