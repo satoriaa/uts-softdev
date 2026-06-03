@@ -100,10 +100,12 @@ export default function DashboardUserLayout({
       }
 
       // setelah (atau jika) hydrate, validasi role
+      // IMPORTANT: jangan redirect kalau user masih null karena fetch /me belum selesai.
+      if (isHydrating) return
+
       const hydratedUser = useAuthStore.getState().user
       if (!hydratedUser) {
-        // hindari redirect berulang saat masih proses hydration
-        if (isHydrating) return
+        // Token ada tapi /me tidak mengisi user (token invalid/expired)
         logout()
         localStorage.removeItem('token')
         router.replace('/login/user')
@@ -116,6 +118,7 @@ export default function DashboardUserLayout({
         router.replace('/login/user')
         return
       }
+
 
       if (INVALID_ROUTES.includes(pathname)) {
         router.replace('/dashboard_user')
