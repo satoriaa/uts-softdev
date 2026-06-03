@@ -125,8 +125,6 @@ export default function DashboardUserLayout({
     run()
   }, [localToken, token, pathname, router, user, isHydrating, logout])
 
-
-
   const activeMenu = useMemo(
     () => MENU_ITEMS.find((item) => item.href === pathname),
     [pathname]
@@ -167,14 +165,28 @@ export default function DashboardUserLayout({
         <div className={`flex items-center mb-12 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen ? (
             <div className="flex items-center gap-3 animate-in fade-in duration-700">
-              <div className="h-9 w-9 bg-[#EF6145] rounded-xl flex items-center justify-center font-black text-white shadow-lg rotate-3">C</div>
+              {/* LOGO SAAT SIDEBAR TERBUKA */}
+              <div className="h-9 w-9 relative flex-shrink-0">
+                <img
+                  src="/images/Logo-Bem-Layout-1.png"
+                  alt="Logo BEM"
+                  className="object-contain w-full h-full"
+                />
+              </div>
               <div className="overflow-hidden">
                 <h1 className="text-lg font-black tracking-tighter leading-none">CREATIVE HUB</h1>
                 <p className="text-[#EF6145] text-[9px] mt-1 uppercase font-black tracking-[0.2em]">FSRD UNTAR</p>
               </div>
             </div>
           ) : (
-            <div className="h-10 w-10 bg-[#EF6145] rounded-xl flex items-center justify-center font-bold text-white shadow-lg hover:rotate-12 transition-transform cursor-pointer">C</div>
+            /* LOGO SAAT SIDEBAR MENGECIL (COLLAPSED) */
+            <div className="h-10 w-10 relative hover:scale-110 transition-transform cursor-pointer flex-shrink-0">
+              <img
+                src="/Logo-Bem-Layout-1.png"
+                alt="Logo BEM"
+                className="object-contain w-full h-full"
+              />
+            </div>
           )}
           <button onClick={() => setIsMobileOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
             <X size={24} />

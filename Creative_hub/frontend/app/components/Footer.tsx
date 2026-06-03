@@ -74,22 +74,34 @@ export default function Footer() {
           </div>
 
           {/* Right Section - Contact */}
-          <div className="space-y-6">
-            <h4 className="text-xs font-black tracking-widest uppercase text-white/50">
-              Contact
-            </h4>
-            <div className="space-y-2 text-sm">
-              <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
-                <span className="font-semibold text-white/90">Email:</span><br />
-                fsrduntar.bem@gmail.com
-              </p>
-              <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
-                <span className="font-semibold text-white/90">Phone:</span><br />
-                021-5671748, 5663279, 5604477
-              </p>
-            </div>
-          </div>
-        </div>
+<div className="space-y-6">
+  <h4 className="text-xs font-black tracking-widest uppercase text-white/50">
+    Contact
+  </h4>
+  <div className="space-y-4 text-sm">
+    <div className="space-y-2">
+      <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
+        <span className="font-semibold text-white/90">Email:</span><br />
+        fsrduntar.bem@gmail.com
+      </p>
+      <p className="text-sm text-white/70 hover:text-white transition-colors duration-300">
+        <span className="font-semibold text-white/90">Phone:</span><br />
+        021-5671748, 5663279, 5604477
+      </p>
+    </div>
+
+    {/* UKURAN GAMBAR YANG SUDAH DIPERBESAR */}
+    <div className="h-24 w-auto max-w-full relative pt-2">
+      <img 
+        src="/images/image.png" 
+        alt="FSRD UNTAR BEM" 
+        className="h-full w-auto object-contain object-left opacity-95 hover:opacity-100 transition-opacity duration-300"
+      />
+    </div>
+  </div>
+</div>
+</div>
+
 
         {/* Divider */}
         <div className="border-t border-white/5 pt-8 mt-12"></div>
