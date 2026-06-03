@@ -49,36 +49,120 @@ export default function LoginPage() {
   // ================= SPLASH SCREEN =================
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-[#F05A37] z-[100] flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center overflow-hidden">
+        {/* Background pulse */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-[#F7E8FF] to-[#E6F7FF]" />
+        <div className="absolute -top-40 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#EF6145]/10 blur-3xl animate-[splashFloatBg_2.2s_ease-in-out_infinite]" />
+
         <div className="relative z-10 text-center flex flex-col items-center">
-          <div className="overflow-hidden mb-4">
-            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight animate-[slideUp_1s_ease-out_forwards]">
-              CENTRAL
-            </h1>
+          {/* Sparkles */}
+
+          {/* memastikan logo splash tidak kepotong saat animasi */}
+          <div className="pointer-events-none absolute inset-0" aria-hidden>
+            {Array.from({ length: 14 }).map((_, i) => {
+              const left = 10 + Math.random() * 80;
+              const top = 10 + Math.random() * 65;
+              const delay = Math.random() * 0.8;
+              const duration = 1.2 + Math.random() * 0.9;
+              const size = 6 + Math.random() * 10;
+              return (
+                <span
+                  key={i}
+                  className="absolute rounded-full bg-white/80"
+                  style={{
+                    left: `${left}%`,
+                    top: `${top}%`,
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    filter: 'drop-shadow(0 0 10px rgba(239,97,69,0.35))',
+                    animationDelay: `${delay}s`,
+                    animationDuration: `${duration}s`,
+                  }}
+                />
+              );
+            })}
           </div>
-          <div className="overflow-hidden">
-            <h1 className="text-white text-5xl md:text-7xl font-black tracking-tight opacity-0 animate-[slideUp_1s_ease-out_0.2s_forwards]">
-              CREATIVE HUB
-            </h1>
+
+          {/* Splash logo with float */}
+          <div className="mb-4">
+
+            <div className="animate-[splashFloat_1.8s_ease-in-out_infinite]">
+              <Image
+                src="/images/gambar-splash.png"
+                alt="Splash"
+                width={280}
+                height={280}
+                className="object-contain drop-shadow-2xl"
+                priority
+              />
+            </div>
           </div>
-          <div className="mt-8 w-48 h-1 bg-white/30 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full animate-[loadingBar_2s_ease-in-out_forwards]"></div>
+
+          {/* Progress bar with shimmer */}
+          <div className="mt-8 w-64 h-3 bg-white/30 rounded-full overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent translate-x-[-120%] animate-[splashShimmer_2.1s_ease-in-out_forwards]" />
+            <div className="absolute inset-y-0 left-0 bg-black rounded-full animate-[splashBar_1.8s_ease-in-out_forwards]" />
+          </div>
+
+          {/* Text hint */}
+          <div className="mt-4 text-sm font-semibold tracking-widest text-gray-600">
+            Central Creative Hub
           </div>
         </div>
 
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes slideUp {
-              from { transform: translateY(100%); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-            @keyframes loadingBar {
-              0% { width: 0%; }
-              50% { width: 70%; }
-              100% { width: 100%; }
-            }
-          `
-        }} />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+ 
+
+
+              @keyframes splashFloatBg {
+                0% { transform: translateY(0); opacity: 0.9; }
+                50% { transform: translateY(-18px); opacity: 1; }
+                100% { transform: translateY(0); opacity: 0.9; }
+              }
+
+              @keyframes splashBar {
+                0% { width: 0%; }
+                55% { width: 72%; }
+                100% { width: 100%; }
+              }
+
+              @keyframes splashShimmer {
+                0% { transform: translateX(-120%); opacity: 0; }
+                20% { opacity: 1; }
+                100% { transform: translateX(120%); opacity: 0; }
+              }
+
+              /* sparkles blink */
+              @keyframes splashSparkle {
+                0% { transform: scale(0.8); opacity: 0; }
+                15% { opacity: 1; }
+                50% { transform: scale(1.2); opacity: 0.9; }
+                100% { transform: scale(0.8); opacity: 0; }
+              }
+
+              /* prevent clipped look when floating */
+              @keyframes splashFloat {
+                0% { transform: translateY(0) rotate(-0.5deg); }
+                50% { transform: translateY(-8px) rotate(0.5deg); }
+                100% { transform: translateY(0) rotate(-0.5deg); }
+              }
+
+
+              /* exit animation */
+              @media (prefers-reduced-motion: no-preference) {
+                .splash-exit {
+                  animation: splashExit 280ms ease-out forwards;
+                }
+                @keyframes splashExit {
+                  from { opacity: 1; transform: translateY(0); }
+                  to { opacity: 0; transform: translateY(-6px); }
+                }
+              }
+            `,
+          }}
+        />
       </div>
     );
   }
